@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Дисциплина | Социальная сеть</title>
-    <!-- Firebase SDK (правильная версия для ваших ключей) -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -433,12 +433,18 @@
             font-size: 18px;
         }
 
+        /* POST styles with 3-dots menu */
         .post {
             background: var(--bg-card);
             border-radius: 20px;
             padding: 14px;
             margin-bottom: 12px;
             border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .post:hover {
+            border-color: var(--accent);
         }
 
         .post-header {
@@ -456,6 +462,52 @@
             background: none;
             border: none;
             padding: 0;
+        }
+
+        .post-menu {
+            position: relative;
+        }
+
+        .menu-dots {
+            background: none;
+            width: auto;
+            padding: 4px 8px;
+            font-size: 16px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .menu-dots:hover {
+            background: var(--bg-input);
+        }
+
+        .menu-dropdown {
+            position: absolute;
+            right: 0;
+            top: 30px;
+            background: var(--bg-card);
+            border-radius: 14px;
+            padding: 6px 0;
+            min-width: 130px;
+            z-index: 50;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+        }
+
+        .menu-dropdown button {
+            background: none;
+            width: 100%;
+            text-align: left;
+            padding: 8px 14px;
+            border-radius: 0;
+            color: var(--text-primary);
+            font-size: 13px;
+        }
+
+        .menu-dropdown button:hover {
+            background: var(--accent);
+            color: white;
         }
 
         .post-text {
@@ -497,6 +549,11 @@
             gap: 4px;
             color: var(--text-secondary);
             font-size: 12px;
+        }
+
+        .like-btn:hover, .comment-toggle-btn:hover {
+            background: var(--bg-input);
+            color: var(--accent);
         }
 
         .like-btn.liked {
@@ -550,6 +607,27 @@
             color: var(--text-primary);
             font-size: 13px;
             margin: 6px 0 4px 0;
+        }
+
+        .comment-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .edit-comment-btn, .delete-comment-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .edit-comment-btn:hover, .delete-comment-btn:hover {
+            background: var(--border);
+            color: var(--accent);
         }
 
         .comment-input {
@@ -792,7 +870,7 @@
 </div>
 
 <script>
-    // ========== ВАША FIREBASE КОНФИГУРАЦИЯ ==========
+    // ========== FIREBASE КОНФИГУРАЦИЯ ==========
     const firebaseConfig = {
         apiKey: "AIzaSyAWk8l7q04m2keV5DoaMA4kIymf0ac9lQQ",
         authDomain: "disciplina-8ac49.firebaseapp.com",
@@ -802,7 +880,6 @@
         appId: "1:826961979878:web:3d3b62f747253e4fcd8e27"
     };
     
-    // Инициализация Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
@@ -854,7 +931,7 @@
         localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
     }
 
-    // Загрузка данных
+    // --- ЗАГРУЗКА ДАННЫХ ---
     async function loadData() {
         const usersSnapshot = await db.collection('users').get();
         users = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -866,7 +943,7 @@
         gameStats = statsSnapshot.docs.map(doc => ({ userId: doc.id, ...doc.data() }));
     }
 
-    // Посты
+    // --- ПОСТЫ ---
     async function savePost(text, photoUrl) {
         await db.collection('posts').add({
             userId: currentUser.uid,
@@ -883,14 +960,12 @@
     async function toggleLike(postId, post) {
         const likes = post.likes || [];
         const index = likes.indexOf(currentUser.uid);
-        if (index === -1) {
-            likes.push(currentUser.uid);
-        } else {
-            likes.splice(index, 1);
-        }
+        if (index === -1) likes.push(currentUser.uid);
+        else likes.splice(index, 1);
         await db.collection('posts').doc(postId).update({ likes: likes });
         await loadData();
         renderFeed();
+        if (document.getElementById('profilePosts')) renderProfile();
     }
 
     async function addComment(postId, text) {
@@ -906,10 +981,31 @@
         await loadData();
         commentsVisible[postId] = true;
         renderFeed();
-        document.getElementById(`commentInput-${postId}`).value = '';
+        if (document.getElementById(`commentInput-${postId}`)) 
+            document.getElementById(`commentInput-${postId}`).value = '';
     }
 
-    // Игра
+    async function deletePost(postId) {
+        if (confirm('Удалить пост?')) {
+            await db.collection('posts').doc(postId).delete();
+            await loadData();
+            renderFeed();
+            if (document.getElementById('profilePosts')) renderProfile();
+        }
+    }
+
+    async function editPost(postId) {
+        const post = posts.find(p => p.id === postId);
+        const newText = prompt('Редактировать пост:', post?.text);
+        if (newText && newText.trim()) {
+            await db.collection('posts').doc(postId).update({ text: newText.trim() });
+            await loadData();
+            renderFeed();
+            if (document.getElementById('profilePosts')) renderProfile();
+        }
+    }
+
+    // --- ИГРА ---
     function rollNumber() {
         return Math.floor(Math.random() * 16) - 5;
     }
@@ -951,7 +1047,7 @@
         }, 300);
     }
 
-    // Рендер ленты
+    // --- РЕНДЕР ЛЕНТЫ (С ТОЧКАМИ) ---
     async function renderFeed() {
         const container = document.getElementById('postsList');
         if (posts.length === 0) {
@@ -963,11 +1059,24 @@
             const author = users.find(u => u.id === post.userId);
             const isLiked = post.likes?.includes(currentUser.uid);
             const showComments = commentsVisible[post.id];
+            const isAuthor = post.userId === currentUser.uid;
+            const showMenu = openMenus[post.id];
             
             return `
                 <div class="post">
                     <div class="post-header">
                         <button class="post-author" onclick="viewProfile('${post.userId}')">${escapeHtml(author?.name || '?')}</button>
+                        ${isAuthor ? `
+                            <div class="post-menu">
+                                <button class="menu-dots" onclick="event.stopPropagation(); toggleMenu('${post.id}')">⋮</button>
+                                ${showMenu ? `
+                                    <div class="menu-dropdown">
+                                        <button onclick="editPost('${post.id}')">Редактировать</button>
+                                        <button onclick="deletePost('${post.id}')">Удалить</button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        ` : ''}
                     </div>
                     <div class="post-text">${escapeHtml(post.text)}</div>
                     ${post.photo ? `<img src="${post.photo}" class="post-photo">` : ''}
@@ -1003,7 +1112,30 @@
         }).join('');
     }
 
-    // Рендер профиля
+    function toggleComments(postId) {
+        commentsVisible[postId] = !commentsVisible[postId];
+        renderFeed();
+    }
+
+    window.toggleMenu = function(postId) {
+        if (openMenus[postId]) {
+            delete openMenus[postId];
+        } else {
+            openMenus = {};
+            openMenus[postId] = true;
+        }
+        renderFeed();
+    };
+
+    // --- Закрытие меню при клике вне ---
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.post-menu')) {
+            openMenus = {};
+            renderFeed();
+        }
+    });
+
+    // --- ПРОФИЛЬ ---
     async function renderProfile() {
         const container = document.getElementById('profileContainer');
         const profileUser = users.find(u => u.id === viewingUserId);
@@ -1116,7 +1248,7 @@
         }
     }
 
-    // Рендер игры
+    // --- ИГРА ---
     async function renderGameTab() {
         const container = document.getElementById('gameContainer');
         const stats = gameStats.find(s => s.userId === currentUser.uid);
@@ -1208,7 +1340,7 @@
         `;
     }
 
-    // Авторизация
+    // --- АВТОРИЗАЦИЯ ---
     const authScreen = document.getElementById('authScreen');
     const mainApp = document.getElementById('mainApp');
     const submitBtn = document.getElementById('submitAuthBtn');
@@ -1308,21 +1440,21 @@
         renderProfile();
     };
 
-    // Вспомогательные функции для onclick
+    // --- ГЛОБАЛЬНЫЕ ФУНКЦИИ ДЛЯ onclick ---
     window.toggleLike = toggleLike;
     window.addComment = addComment;
-    window.toggleComments = (postId) => {
-        commentsVisible[postId] = !commentsVisible[postId];
-        renderFeed();
-    };
+    window.toggleComments = toggleComments;
     window.viewProfile = (userId) => {
         viewingUserId = userId;
         renderProfile();
         document.querySelector('.tab[data-tab="profile"]').click();
     };
     window.playGame = playGame;
+    window.deletePost = deletePost;
+    window.editPost = editPost;
+    window.toggleMenu = window.toggleMenu;
 
-    // Создание поста
+    // --- СОЗДАНИЕ ПОСТА ---
     const modal = document.getElementById('postModal');
     const fabBtn = document.getElementById('fabBtn');
 
@@ -1363,7 +1495,7 @@
         }
     };
 
-    // Табы
+    // --- ТАБЫ ---
     document.querySelectorAll('.tab').forEach(tab => {
         tab.onclick = () => {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -1397,6 +1529,9 @@
             showMainApp();
         }
     });
+    
+    // Функция для обновления имени файла в профиле
+    window.updateAvatarFileName = updateAvatarFileName;
 </script>
 </body>
 </html>
