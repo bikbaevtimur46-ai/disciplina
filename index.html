@@ -4,7 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Дисциплина | Социальная сеть</title>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- Firebase SDK (правильная версия для ваших ключей) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -25,10 +30,30 @@
             --border: #252c38;
             --like: #ff3b5c;
             --comment-bg: #0d1119;
+            --comment-hover: #151b26;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+        }
+
+        body.light-theme {
+            --bg-primary: #f5f7fb;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --bg-input: #f0f2f6;
+            --text-primary: #1a1f2e;
+            --text-secondary: #5a6278;
+            --accent: #ff5722;
+            --accent-hover: #ff7043;
+            --border: #e2e6ed;
+            --like: #ff3b5c;
+            --comment-bg: #f8f9fc;
+            --comment-hover: #f0f2f6;
         }
 
         body {
             background: var(--bg-primary);
+            transition: all 0.2s ease;
         }
 
         .auth-screen {
@@ -40,12 +65,17 @@
             padding: 20px;
         }
 
+        body.light-theme .auth-screen {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
         .auth-card {
             background: var(--bg-card);
             border-radius: 28px;
             padding: 32px;
             width: 100%;
             max-width: 380px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
             border: 1px solid var(--border);
         }
 
@@ -75,6 +105,13 @@
             font-size: 14px;
             background: var(--bg-input);
             color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(255,87,34,0.15);
         }
 
         textarea {
@@ -91,6 +128,12 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
         }
 
         .file-input-wrapper {
@@ -117,8 +160,14 @@
             border-radius: 14px;
             padding: 11px 14px;
             cursor: pointer;
+            transition: all 0.2s;
             color: var(--text-secondary);
             font-size: 14px;
+        }
+
+        .file-input-label:hover {
+            border-color: var(--accent);
+            background: var(--border);
         }
 
         .file-name {
@@ -203,6 +252,7 @@
             font-size: 14px;
             color: var(--text-secondary);
             border-radius: 30px;
+            transition: all 0.2s;
         }
 
         .tab.active {
@@ -216,6 +266,171 @@
 
         .hidden {
             display: none;
+        }
+
+        .game-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .game-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .game-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        .game-description {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .dice-container {
+            background: linear-gradient(135deg, var(--bg-input), var(--bg-card));
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin: 20px 0;
+            border: 2px solid var(--border);
+        }
+
+        .dice-value {
+            font-size: 80px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .dice-value.positive {
+            color: var(--success);
+        }
+
+        .dice-value.negative {
+            color: var(--danger);
+        }
+
+        .roll-button {
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            font-size: 18px;
+            padding: 15px 30px;
+            border-radius: 50px;
+            margin: 20px 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: var(--bg-input);
+            border-radius: 16px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .leaderboard {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .leaderboard-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .leaderboard-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .leaderboard-item:hover {
+            background: var(--bg-input);
+            transform: translateX(5px);
+        }
+
+        .leaderboard-rank {
+            font-weight: bold;
+            font-size: 18px;
+            min-width: 40px;
+            color: var(--accent);
+        }
+
+        .rank-1 { color: #ffd700; }
+        .rank-2 { color: #c0c0c0; }
+        .rank-3 { color: #cd7f32; }
+
+        .leaderboard-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--border);
+        }
+
+        .leaderboard-info {
+            flex: 1;
+        }
+
+        .leaderboard-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .leaderboard-stats {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .leaderboard-score {
+            color: var(--accent);
+            font-weight: bold;
+            font-size: 18px;
         }
 
         .post {
@@ -355,8 +570,6 @@
         .comment-input button {
             width: auto;
             padding: 8px 20px;
-            margin: 0;
-            font-size: 12px;
         }
 
         .profile-card {
@@ -403,21 +616,10 @@
             margin-top: 12px;
         }
 
-        .follow-btn {
-            background: var(--bg-input);
-            color: var(--accent);
-            border: 1px solid var(--accent);
-        }
-
-        .follow-btn.following {
-            background: var(--accent);
-            color: white;
-        }
-
-        .edit-form {
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid var(--border);
+        .profile-buttons button {
+            width: auto;
+            padding: 8px 16px;
+            font-size: 13px;
         }
 
         .profile-posts-title {
@@ -446,11 +648,11 @@
             background: var(--accent);
             color: white;
             font-size: 28px;
-            font-weight: bold;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255,87,34,0.4);
             z-index: 200;
             border: none;
         }
@@ -480,6 +682,13 @@
         .modal-content h3 {
             margin-bottom: 16px;
             color: var(--text-primary);
+            font-size: 20px;
+        }
+
+        .modal-content textarea {
+            margin: 0 0 12px 0;
+            min-height: 100px;
+            resize: none;
         }
 
         .modal-buttons {
@@ -488,14 +697,29 @@
             margin-top: 12px;
         }
 
+        .modal-buttons button {
+            width: auto;
+            flex: 1;
+        }
+
         .cancel-modal {
             background: var(--bg-input);
             color: var(--text-primary);
         }
 
+        @keyframes rollAnimation {
+            0% { transform: rotate(0deg) scale(1); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        .rolling-dice {
+            animation: rollAnimation 0.5s ease;
+        }
+
         @media (max-width: 500px) {
             .content { padding: 8px; }
             .fab { width: 50px; height: 50px; font-size: 26px; }
+            .stats { gap: 20px; }
         }
     </style>
 </head>
@@ -504,7 +728,7 @@
 <div id="authScreen" class="auth-screen">
     <div class="auth-card">
         <h1>Дисциплина</h1>
-        <div class="sub">Твоя территория силы</div>
+        <div class="sub">Делай каждый день</div>
         <div id="authForm">
             <input type="text" id="regName" placeholder="Имя">
             <input type="email" id="regEmail" placeholder="Email">
@@ -527,6 +751,7 @@
 
     <div class="tabs">
         <div class="tab active" data-tab="feed">Лента</div>
+        <div class="tab" data-tab="game">Игра</div>
         <div class="tab" data-tab="profile">Профиль</div>
     </div>
 
@@ -534,6 +759,11 @@
         <div id="feedTab">
             <div id="postsList"></div>
         </div>
+
+        <div id="gameTab" class="hidden">
+            <div id="gameContainer"></div>
+        </div>
+
         <div id="profileTab" class="hidden">
             <div id="profileContainer"></div>
         </div>
@@ -562,58 +792,44 @@
 </div>
 
 <script>
-    // ========== ПОДКЛЮЧЕНИЕ К SUPABASE (БЕЗ ДУБЛИКАТОВ) ==========
-    const SUPABASE_URL = "https://vhzmcgrpackukvyzqpgi.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_ynLEwfGjO_cR7CX4satbHg_dc0IE8eN";
+    // ========== ВАША FIREBASE КОНФИГУРАЦИЯ ==========
+    const firebaseConfig = {
+        apiKey: "AIzaSyAWk8l7q04m2keV5DoaMA4kIymf0ac9lQQ",
+        authDomain: "disciplina-8ac49.firebaseapp.com",
+        projectId: "disciplina-8ac49",
+        storageBucket: "disciplina-8ac49.firebasestorage.app",
+        messagingSenderId: "826961979878",
+        appId: "1:826961979878:web:3d3b62f747253e4fcd8e27"
+    };
     
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // Инициализация Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const storage = firebase.storage();
 
-    // ДАННЫЕ
-    let users = [];
-    let posts = [];
+    // Глобальные переменные
     let currentUser = null;
-    let isLoginMode = false;
-    let viewingUserId = null;
+    let posts = [];
+    let users = [];
+    let gameStats = [];
     let commentsVisible = {};
+    let openMenus = {};
+    let viewingUserId = null;
+    let isLoginMode = false;
+    let cooldownInterval = null;
 
     function updateFileName(input) {
         const fileName = input.files[0]?.name || '';
         const display = document.getElementById('fileNameDisplay');
-        if (display) display.textContent = fileName ? `📎 ${fileName.substring(0, 30)}${fileName.length > 30 ? '...' : ''}` : '';
-    }
-
-    async function loadDataFromSupabase() {
-        const { data: usersData } = await supabase.from('users').select('*');
-        if (usersData) users = usersData;
-        
-        const { data: postsData } = await supabase.from('posts').select('*').order('created_at', { ascending: false });
-        if (postsData) posts = postsData;
-        
-        const { data: likesData } = await supabase.from('likes').select('*');
-        if (likesData) {
-            posts.forEach(post => {
-                post.likes = likesData.filter(l => l.post_id === post.id).map(l => l.user_id);
-            });
-        }
-        
-        const { data: commentsData } = await supabase.from('comments').select('*').order('created_at', { ascending: true });
-        if (commentsData) {
-            posts.forEach(post => {
-                post.comments = commentsData.filter(c => c.post_id === post.id);
-            });
-        }
-        
-        const { data: followsData } = await supabase.from('follows').select('*');
-        if (followsData) {
-            users.forEach(user => {
-                user.followers = followsData.filter(f => f.following_id === user.id).map(f => f.follower_id);
-                user.following = followsData.filter(f => f.follower_id === user.id).map(f => f.following_id);
-            });
+        if (display) {
+            display.textContent = fileName ? `📎 ${fileName.substring(0, 30)}${fileName.length > 30 ? '...' : ''}` : '';
         }
     }
 
     function formatDate(date) {
-        const d = new Date(date);
+        if (!date) return 'только что';
+        const d = date.toDate ? date.toDate() : new Date(date);
         const now = new Date();
         const diff = Math.floor((now - d) / 1000);
         if (diff < 60) return 'только что';
@@ -624,15 +840,380 @@
 
     function escapeHtml(str) {
         if (!str) return '';
-        return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
+        return str.replace(/[&<>]/g, (m) => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
     }
 
-    // АВТОРИЗАЦИЯ
+    function initTheme() {
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-theme');
+        }
+    }
+
+    function toggleTheme() {
+        document.body.classList.toggle('light-theme');
+        localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+    }
+
+    // Загрузка данных
+    async function loadData() {
+        const usersSnapshot = await db.collection('users').get();
+        users = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        const postsSnapshot = await db.collection('posts').orderBy('date', 'desc').get();
+        posts = postsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        const statsSnapshot = await db.collection('gameStats').get();
+        gameStats = statsSnapshot.docs.map(doc => ({ userId: doc.id, ...doc.data() }));
+    }
+
+    // Посты
+    async function savePost(text, photoUrl) {
+        await db.collection('posts').add({
+            userId: currentUser.uid,
+            text: text,
+            photo: photoUrl || null,
+            likes: [],
+            comments: [],
+            date: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        await loadData();
+        renderFeed();
+    }
+
+    async function toggleLike(postId, post) {
+        const likes = post.likes || [];
+        const index = likes.indexOf(currentUser.uid);
+        if (index === -1) {
+            likes.push(currentUser.uid);
+        } else {
+            likes.splice(index, 1);
+        }
+        await db.collection('posts').doc(postId).update({ likes: likes });
+        await loadData();
+        renderFeed();
+    }
+
+    async function addComment(postId, text) {
+        if (!text.trim()) return;
+        const post = posts.find(p => p.id === postId);
+        const comments = post.comments || [];
+        comments.push({
+            userId: currentUser.uid,
+            text: text,
+            date: new Date().toISOString()
+        });
+        await db.collection('posts').doc(postId).update({ comments: comments });
+        await loadData();
+        commentsVisible[postId] = true;
+        renderFeed();
+        document.getElementById(`commentInput-${postId}`).value = '';
+    }
+
+    // Игра
+    function rollNumber() {
+        return Math.floor(Math.random() * 16) - 5;
+    }
+
+    async function playGame() {
+        const stats = gameStats.find(s => s.userId === currentUser.uid);
+        const lastDate = stats?.lastAttemptDate?.toDate ? stats.lastAttemptDate.toDate() : null;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        if (lastDate && lastDate >= today) {
+            alert('Вы уже играли сегодня! Возвращайтесь завтра.');
+            return;
+        }
+        
+        const diceElement = document.getElementById('diceValue');
+        if (diceElement) diceElement.classList.add('rolling-dice');
+        
+        setTimeout(async () => {
+            const rolled = rollNumber();
+            const newTotal = (stats?.totalPoints || 0) + rolled;
+            const newBest = Math.max(rolled, stats?.bestRoll || -5);
+            
+            await db.collection('gameStats').doc(currentUser.uid).set({
+                userId: currentUser.uid,
+                totalPoints: newTotal,
+                bestRoll: newBest,
+                lastAttemptDate: firebase.firestore.FieldValue.serverTimestamp(),
+                lastRollValue: rolled
+            });
+            
+            await loadData();
+            renderGameTab();
+            
+            const message = rolled >= 0 
+                ? `🎉 Вам выпало +${rolled} очков!\n📊 Всего: ${newTotal}`
+                : `😢 Вам выпало ${rolled} очков.\n📊 Всего: ${newTotal}`;
+            alert(message);
+        }, 300);
+    }
+
+    // Рендер ленты
+    async function renderFeed() {
+        const container = document.getElementById('postsList');
+        if (posts.length === 0) {
+            container.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:40px;">📭 Нет постов. Нажми +</div>';
+            return;
+        }
+        
+        container.innerHTML = posts.map(post => {
+            const author = users.find(u => u.id === post.userId);
+            const isLiked = post.likes?.includes(currentUser.uid);
+            const showComments = commentsVisible[post.id];
+            
+            return `
+                <div class="post">
+                    <div class="post-header">
+                        <button class="post-author" onclick="viewProfile('${post.userId}')">${escapeHtml(author?.name || '?')}</button>
+                    </div>
+                    <div class="post-text">${escapeHtml(post.text)}</div>
+                    ${post.photo ? `<img src="${post.photo}" class="post-photo">` : ''}
+                    <div class="post-footer">
+                        <div class="post-actions">
+                            <button class="like-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}', ${JSON.stringify(post).replace(/"/g, '&quot;')})">❤️ ${post.likes?.length || 0}</button>
+                            <button class="comment-toggle-btn" onclick="toggleComments('${post.id}')">💬 ${post.comments?.length || 0}</button>
+                        </div>
+                        <div class="post-time-footer">${formatDate(post.date)}</div>
+                    </div>
+                    ${showComments ? `
+                        <div class="comments-section">
+                            ${(post.comments || []).map(c => {
+                                const commentAuthor = users.find(u => u.id === c.userId);
+                                return `
+                                    <div class="comment">
+                                        <div class="comment-header">
+                                            <button class="comment-author" onclick="viewProfile('${c.userId}')">${escapeHtml(commentAuthor?.name || '?')}</button>
+                                            <span class="comment-date">${formatDate(c.date)}</span>
+                                        </div>
+                                        <div class="comment-text">${escapeHtml(c.text)}</div>
+                                    </div>
+                                `;
+                            }).join('')}
+                            <div class="comment-input">
+                                <input type="text" placeholder="Написать комментарий..." id="commentInput-${post.id}">
+                                <button onclick="addComment('${post.id}', document.getElementById('commentInput-${post.id}').value)">→</button>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Рендер профиля
+    async function renderProfile() {
+        const container = document.getElementById('profileContainer');
+        const profileUser = users.find(u => u.id === viewingUserId);
+        if (!profileUser) return;
+        
+        const isOwn = viewingUserId === currentUser.uid;
+        const backBtn = document.getElementById('backBtn');
+        backBtn.classList.toggle('hidden', isOwn);
+        
+        const userPosts = posts.filter(p => p.userId === viewingUserId);
+        const userGameStats = gameStats.find(s => s.userId === viewingUserId) || { totalPoints: 0, bestRoll: -5 };
+        
+        container.innerHTML = `
+            <div class="profile-card">
+                <img class="avatar" src="${profileUser.avatar || 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'80\' height=\'80\' viewBox=\'0 0 80 80\'%3E%3Crect width=\'80\' height=\'80\' fill=\'%23252c38\'/%3E%3Ctext x=\'40\' y=\'48\' text-anchor=\'middle\' font-size=\'32\' fill=\'%238a91a8\'%3E?%3C/text%3E%3C/svg%3E'}">
+                <h3 style="color:var(--text-primary);">${escapeHtml(profileUser.name)}</h3>
+                <p style="color:var(--text-secondary); font-size:13px; margin-top:6px;">${escapeHtml(profileUser.bio || 'Нет описания')}</p>
+                <div class="stats">
+                    <div><div class="stat-value">${userPosts.length}</div><div class="stat-label">посты</div></div>
+                    <div><div class="stat-value">${profileUser.followers?.length || 0}</div><div class="stat-label">подписчики</div></div>
+                    <div><div class="stat-value">${profileUser.following?.length || 0}</div><div class="stat-label">подписки</div></div>
+                </div>
+                <div class="stats" style="margin-top: 5px;">
+                    <div><div class="stat-value" style="color: var(--success);">${userGameStats.totalPoints}</div><div class="stat-label">очков в игре</div></div>
+                    <div><div class="stat-value" style="color: var(--warning);">${userGameStats.bestRoll >= 0 ? '+' : ''}${userGameStats.bestRoll}</div><div class="stat-label">лучший бросок</div></div>
+                </div>
+                <div class="profile-buttons">
+                    ${!isOwn ? `
+                        <button class="follow-btn" onclick="alert('Подписки в разработке')">Подписаться</button>
+                    ` : `
+                        <button id="editProfileBtn">✏️ Редактировать</button>
+                        <button id="themeBtn">🌓 Тема</button>
+                    `}
+                </div>
+                ${isOwn ? `
+                    <div id="editProfileForm" class="edit-form hidden">
+                        <input type="text" id="editName" placeholder="Имя" value="${escapeHtml(profileUser.name)}">
+                        <textarea id="editBio" rows="2" placeholder="О себе">${escapeHtml(profileUser.bio || '')}</textarea>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="editAvatar" accept="image/*" onchange="updateAvatarFileName(this)">
+                            <div class="file-input-label">
+                                <span>📷</span>
+                                <span>Выбрать аватар</span>
+                            </div>
+                            <span id="avatarFileNameDisplay" class="file-name"></span>
+                        </div>
+                        <button id="saveProfileBtn">Сохранить</button>
+                        <button id="cancelProfileBtn">Отмена</button>
+                    </div>
+                ` : ''}
+            </div>
+            <div class="profile-posts-title">📝 Посты</div>
+            <div id="profilePosts"></div>
+        `;
+        
+        const profilePosts = document.getElementById('profilePosts');
+        if (userPosts.length === 0) {
+            profilePosts.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:30px;">Нет постов</div>';
+        } else {
+            profilePosts.innerHTML = userPosts.map(post => `
+                <div class="post">
+                    <div class="post-text">${escapeHtml(post.text)}</div>
+                    ${post.photo ? `<img src="${post.photo}" class="post-photo">` : ''}
+                    <div class="post-footer">
+                        <div class="post-time-footer">${formatDate(post.date)}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        if (isOwn) {
+            document.getElementById('editProfileBtn')?.addEventListener('click', () => {
+                document.getElementById('editProfileForm').classList.remove('hidden');
+            });
+            document.getElementById('themeBtn')?.addEventListener('click', toggleTheme);
+            document.getElementById('saveProfileBtn')?.addEventListener('click', async () => {
+                const newName = document.getElementById('editName').value.trim();
+                if (newName) {
+                    await db.collection('users').doc(currentUser.uid).update({ name: newName });
+                }
+                const newBio = document.getElementById('editBio').value.trim();
+                await db.collection('users').doc(currentUser.uid).update({ bio: newBio });
+                
+                const avatarFile = document.getElementById('editAvatar').files[0];
+                if (avatarFile) {
+                    const reader = new FileReader();
+                    reader.onload = async (e) => {
+                        await db.collection('users').doc(currentUser.uid).update({ avatar: e.target.result });
+                        await loadData();
+                        await renderProfile();
+                    };
+                    reader.readAsDataURL(avatarFile);
+                } else {
+                    await loadData();
+                    await renderProfile();
+                }
+                document.getElementById('editProfileForm').classList.add('hidden');
+            });
+            document.getElementById('cancelProfileBtn')?.addEventListener('click', () => {
+                document.getElementById('editProfileForm').classList.add('hidden');
+            });
+        }
+    }
+
+    function updateAvatarFileName(input) {
+        const fileName = input.files[0]?.name || '';
+        const display = document.getElementById('avatarFileNameDisplay');
+        if (display) {
+            display.textContent = fileName ? `📎 ${fileName.substring(0, 30)}${fileName.length > 30 ? '...' : ''}` : '';
+        }
+    }
+
+    // Рендер игры
+    async function renderGameTab() {
+        const container = document.getElementById('gameContainer');
+        const stats = gameStats.find(s => s.userId === currentUser.uid);
+        const lastDate = stats?.lastAttemptDate?.toDate ? stats.lastAttemptDate.toDate() : null;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const canPlay = !lastDate || lastDate < today;
+        
+        container.innerHTML = `
+            <div class="game-card">
+                <div class="game-header">
+                    <div class="game-icon">🎲</div>
+                    <div class="game-title">Пиписа бот</div>
+                    <div class="game-description">Бросай кубик каждый день! Число от -5 до +10</div>
+                </div>
+                <div class="dice-container">
+                    <div class="dice-label">Твой бросок</div>
+                    <div id="diceValue" class="dice-value ${stats?.lastRollValue >= 0 ? 'positive' : 'negative'}">
+                        ${stats?.lastRollValue !== undefined && !canPlay ? `${stats.lastRollValue >= 0 ? '+' : ''}${stats.lastRollValue}` : '🎲'}
+                    </div>
+                </div>
+                <button id="rollButton" class="roll-button" ${!canPlay ? 'disabled' : ''}>
+                    ${canPlay ? '🎲 Бросить кубик!' : '⏰ Доступно завтра'}
+                </button>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Всего очков</div>
+                        <div class="stat-value" style="color: ${stats?.totalPoints >= 0 ? 'var(--success)' : 'var(--danger)'}">
+                            ${stats?.totalPoints || 0}
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Лучший бросок</div>
+                        <div class="stat-value" style="color: var(--warning)">
+                            ${stats?.bestRoll >= 0 ? '+' : ''}${stats?.bestRoll || -5}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="leaderboardContainer"></div>
+        `;
+        
+        const rollButton = document.getElementById('rollButton');
+        if (rollButton && canPlay) {
+            rollButton.onclick = playGame;
+        }
+        
+        await renderLeaderboard();
+    }
+
+    async function renderLeaderboard() {
+        const container = document.getElementById('leaderboardContainer');
+        if (!container) return;
+        
+        const leaderboardData = [...gameStats]
+            .sort((a, b) => b.totalPoints - a.totalPoints)
+            .slice(0, 20);
+        
+        if (leaderboardData.length === 0) {
+            container.innerHTML = `<div class="leaderboard"><div class="leaderboard-header"><div class="leaderboard-title">🏆 Лидерборд</div><div class="leaderboard-icon">🏆</div></div><div style="padding:40px;text-align:center;">Пока нет участников</div></div>`;
+            return;
+        }
+        
+        const usersMap = new Map(users.map(u => [u.id, u]));
+        
+        container.innerHTML = `
+            <div class="leaderboard">
+                <div class="leaderboard-header">
+                    <div class="leaderboard-title">🏆 Лидерборд</div>
+                    <div class="leaderboard-icon">🎲</div>
+                </div>
+                ${leaderboardData.map((item, index) => {
+                    const user = usersMap.get(item.userId);
+                    return `
+                        <div class="leaderboard-item" onclick="viewProfile('${item.userId}')">
+                            <div class="leaderboard-rank ${index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : ''}">
+                                ${index + 1}
+                            </div>
+                            <img class="leaderboard-avatar" src="${user?.avatar || 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'40\' viewBox=\'0 0 40 40\'%3E%3Crect width=\'40\' height=\'40\' fill=\'%23252c38\'/%3E%3Ctext x=\'20\' y=\'26\' text-anchor=\'middle\' font-size=\'20\' fill=\'%238a91a8\'%3E?%3C/text%3E%3C/svg%3E'}">
+                            <div class="leaderboard-info">
+                                <div class="leaderboard-name">${escapeHtml(user?.name || '?')}</div>
+                                <div class="leaderboard-stats">🎲 Лучший: ${item.bestRoll >= 0 ? '+' : ''}${item.bestRoll}</div>
+                            </div>
+                            <div class="leaderboard-score">${item.totalPoints}</div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+    }
+
+    // Авторизация
+    const authScreen = document.getElementById('authScreen');
+    const mainApp = document.getElementById('mainApp');
     const submitBtn = document.getElementById('submitAuthBtn');
     const switchBtn = document.getElementById('switchModeBtn');
     const authError = document.getElementById('authError');
-    const authScreen = document.getElementById('authScreen');
-    const mainApp = document.getElementById('mainApp');
 
     function updateAuthButton() {
         if (isLoginMode) {
@@ -662,55 +1243,53 @@
             return;
         }
 
-        if (!isLoginMode) {
-            if (!name) {
-                authError.textContent = 'Введите имя';
-                return;
-            }
-            
-            const { data: existing } = await supabase.from('users').select('id').eq('email', email).single();
-            if (existing) {
-                authError.textContent = 'Email уже зарегистрирован';
-                return;
-            }
-            
-            const { data: newUser, error } = await supabase.from('users').insert([{
-                id: Date.now(),
-                name: name,
-                email: email,
-                password: password,
-                bio: 'Привет! Я в Дисциплине 🔥',
-                avatar: null
-            }]).select().single();
-            
-            if (error) {
-                authError.textContent = 'Ошибка: ' + error.message;
-                return;
-            }
-            currentUser = newUser;
-            await loadDataFromSupabase();
-            showMainApp();
-        } else {
-            const { data: user } = await supabase.from('users').select('*').eq('email', email).eq('password', password).single();
-            if (user) {
-                currentUser = user;
-                await loadDataFromSupabase();
+        try {
+            if (!isLoginMode) {
+                if (!name) {
+                    authError.textContent = 'Введите имя';
+                    return;
+                }
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                await db.collection('users').doc(userCredential.user.uid).set({
+                    name: name,
+                    email: email,
+                    bio: '',
+                    avatar: null,
+                    followers: [],
+                    following: []
+                });
+                await db.collection('gameStats').doc(userCredential.user.uid).set({
+                    userId: userCredential.user.uid,
+                    totalPoints: 0,
+                    bestRoll: -5,
+                    lastAttemptDate: null,
+                    lastRollValue: null
+                });
+                currentUser = userCredential.user;
+                await loadData();
                 showMainApp();
             } else {
-                authError.textContent = 'Неверный email или пароль';
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                currentUser = userCredential.user;
+                await loadData();
+                showMainApp();
             }
+        } catch (error) {
+            authError.textContent = error.message;
         }
     };
 
     async function showMainApp() {
+        viewingUserId = currentUser.uid;
         authScreen.style.display = 'none';
         mainApp.style.display = 'block';
-        viewingUserId = currentUser.id;
         await renderFeed();
         await renderProfile();
+        renderGameTab();
     }
 
-    document.getElementById('logoutBtn').onclick = () => {
+    document.getElementById('logoutBtn').onclick = async () => {
+        await auth.signOut();
         currentUser = null;
         authScreen.style.display = 'flex';
         mainApp.style.display = 'none';
@@ -719,175 +1298,31 @@
     };
 
     document.getElementById('logoBtn').onclick = () => {
-        viewingUserId = currentUser.id;
+        viewingUserId = currentUser.uid;
+        renderProfile();
         document.querySelector('.tab[data-tab="profile"]').click();
     };
 
     document.getElementById('backBtn').onclick = () => {
-        viewingUserId = currentUser.id;
+        viewingUserId = currentUser.uid;
         renderProfile();
     };
 
-    window.viewProfile = function(userId) {
+    // Вспомогательные функции для onclick
+    window.toggleLike = toggleLike;
+    window.addComment = addComment;
+    window.toggleComments = (postId) => {
+        commentsVisible[postId] = !commentsVisible[postId];
+        renderFeed();
+    };
+    window.viewProfile = (userId) => {
         viewingUserId = userId;
         renderProfile();
         document.querySelector('.tab[data-tab="profile"]').click();
     };
+    window.playGame = playGame;
 
-    async function renderProfile() {
-        const container = document.getElementById('profileContainer');
-        const profileUser = users.find(u => u.id === viewingUserId);
-        if (!profileUser) return;
-        
-        const isOwn = viewingUserId === currentUser.id;
-        const backBtn = document.getElementById('backBtn');
-        backBtn.classList.toggle('hidden', isOwn);
-        
-        const userPosts = posts.filter(p => p.user_id === viewingUserId);
-        
-        container.innerHTML = `
-            <div class="profile-card">
-                <img class="avatar" src="${profileUser.avatar || 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'80\' height=\'80\' viewBox=\'0 0 80 80\'%3E%3Crect width=\'80\' height=\'80\' fill=\'%23252c38\'/%3E%3Ctext x=\'40\' y=\'48\' text-anchor=\'middle\' font-size=\'32\' fill=\'%238a91a8\'%3E?%3C/text%3E%3C/svg%3E'}">
-                <h3 style="color:var(--text-primary);">${escapeHtml(profileUser.name)}</h3>
-                <p style="color:var(--text-secondary); font-size:13px; margin-top:6px;">${escapeHtml(profileUser.bio || 'Нет описания')}</p>
-                
-                <div class="stats">
-                    <div><div class="stat-value">${userPosts.length}</div><div class="stat-label">посты</div></div>
-                    <div><div class="stat-value">${profileUser.followers?.length || 0}</div><div class="stat-label">подписчики</div></div>
-                    <div><div class="stat-value">${profileUser.following?.length || 0}</div><div class="stat-label">подписки</div></div>
-                </div>
-                
-                <div class="profile-buttons">
-                    ${!isOwn ? `
-                        <button class="follow-btn" onclick="alert('Функция подписки в разработке')">+ Подписаться</button>
-                    ` : `
-                        <button id="editProfileBtn">✏️ Редактировать</button>
-                    `}
-                </div>
-            </div>
-            <div class="profile-posts-title">📝 Посты</div>
-            <div id="profilePosts"></div>
-        `;
-        
-        if (isOwn) {
-            document.getElementById('editProfileBtn')?.addEventListener('click', () => {
-                alert('Редактирование профиля в разработке');
-            });
-        }
-        
-        renderProfilePosts(userPosts);
-    }
-
-    function renderProfilePosts(userPosts) {
-        const container = document.getElementById('profilePosts');
-        if (!container) return;
-        
-        if (userPosts.length === 0) {
-            container.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:30px;">Нет постов</div>';
-            return;
-        }
-        
-        container.innerHTML = userPosts.map(post => renderPostCard(post)).join('');
-    }
-
-    async function renderFeed() {
-        const container = document.getElementById('postsList');
-        const feedPosts = [...posts].reverse();
-        
-        if (feedPosts.length === 0) {
-            container.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:40px;">📭 Нет постов. Нажми + чтобы создать</div>';
-            return;
-        }
-        
-        container.innerHTML = feedPosts.map(post => renderPostCard(post)).join('');
-        
-        document.querySelectorAll('#postsList .like-btn').forEach(btn => {
-            btn.onclick = async () => {
-                const postId = parseInt(btn.dataset.id);
-                const isLiked = btn.classList.contains('liked');
-                
-                if (isLiked) {
-                    await supabase.from('likes').delete().eq('post_id', postId).eq('user_id', currentUser.id);
-                    btn.classList.remove('liked');
-                    btn.innerHTML = `❤️ ${parseInt(btn.innerHTML.split('❤️')[1]) - 1}`;
-                } else {
-                    await supabase.from('likes').insert([{ post_id: postId, user_id: currentUser.id }]);
-                    btn.classList.add('liked');
-                    btn.innerHTML = `❤️ ${parseInt(btn.innerHTML.split('❤️')[1]) + 1}`;
-                }
-                await loadDataFromSupabase();
-            };
-        });
-        
-        document.querySelectorAll('#postsList .comment-toggle-btn').forEach(btn => {
-            btn.onclick = () => {
-                const postId = parseInt(btn.dataset.id);
-                const commentsDiv = document.getElementById(`comments-${postId}`);
-                if (commentsDiv) commentsDiv.classList.toggle('hidden');
-            };
-        });
-    }
-
-    function renderPostCard(post) {
-        const author = users.find(u => u.id === post.user_id);
-        const isLiked = post.likes?.includes(currentUser.id);
-        
-        return `
-            <div class="post">
-                <div class="post-header">
-                    <button class="post-author" onclick="viewProfile(${post.user_id})">${escapeHtml(author?.name || '?')}</button>
-                </div>
-                <div class="post-text">${escapeHtml(post.text)}</div>
-                ${post.photo ? `<img src="${post.photo}" class="post-photo">` : ''}
-                <div class="post-footer">
-                    <div class="post-actions">
-                        <button class="like-btn ${isLiked ? 'liked' : ''}" data-id="${post.id}">❤️ ${post.likes?.length || 0}</button>
-                        <button class="comment-toggle-btn" data-id="${post.id}">💬 ${post.comments?.length || 0}</button>
-                    </div>
-                    <div class="post-time-footer">${formatDate(post.created_at)}</div>
-                </div>
-                <div id="comments-${post.id}" class="comments-section hidden">
-                    <div>
-                        ${(post.comments || []).map(c => {
-                            const commentAuthor = users.find(u => u.id === c.user_id);
-                            return `
-                                <div class="comment">
-                                    <div class="comment-header">
-                                        <span class="comment-author">${escapeHtml(commentAuthor?.name || '?')}</span>
-                                        <span class="comment-date">${formatDate(c.created_at)}</span>
-                                    </div>
-                                    <div class="comment-text">${escapeHtml(c.text)}</div>
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-                    <div class="comment-input">
-                        <input type="text" placeholder="Написать комментарий..." id="commentInput-${post.id}">
-                        <button onclick="addComment(${post.id})">→</button>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    window.addComment = async function(postId) {
-        const input = document.getElementById(`commentInput-${postId}`);
-        const text = input.value.trim();
-        if (!text) return;
-        
-        await supabase.from('comments').insert([{
-            post_id: postId,
-            user_id: currentUser.id,
-            text: text,
-            created_at: new Date().toISOString()
-        }]);
-        
-        input.value = '';
-        await loadDataFromSupabase();
-        await renderFeed();
-    };
-
-    // СОЗДАНИЕ ПОСТА
+    // Создание поста
     const modal = document.getElementById('postModal');
     const fabBtn = document.getElementById('fabBtn');
 
@@ -918,52 +1353,50 @@
         if (file) {
             const reader = new FileReader();
             reader.onload = async (e) => {
-                await supabase.from('posts').insert([{
-                    id: Date.now(),
-                    user_id: currentUser.id,
-                    text: text,
-                    photo: e.target.result,
-                    created_at: new Date().toISOString()
-                }]);
+                await savePost(text, e.target.result);
                 modal.style.display = 'none';
-                await loadDataFromSupabase();
-                await renderFeed();
             };
             reader.readAsDataURL(file);
         } else {
-            await supabase.from('posts').insert([{
-                id: Date.now(),
-                user_id: currentUser.id,
-                text: text,
-                photo: null,
-                created_at: new Date().toISOString()
-            }]);
+            await savePost(text, null);
             modal.style.display = 'none';
-            await loadDataFromSupabase();
-            await renderFeed();
         }
     };
 
-    // ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК
+    // Табы
     document.querySelectorAll('.tab').forEach(tab => {
-        tab.onclick = async () => {
+        tab.onclick = () => {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
             const tabName = tab.dataset.tab;
             if (tabName === 'feed') {
                 document.getElementById('feedTab').classList.remove('hidden');
+                document.getElementById('gameTab').classList.add('hidden');
                 document.getElementById('profileTab').classList.add('hidden');
-                await renderFeed();
+                renderFeed();
+            } else if (tabName === 'game') {
+                document.getElementById('feedTab').classList.add('hidden');
+                document.getElementById('gameTab').classList.remove('hidden');
+                document.getElementById('profileTab').classList.add('hidden');
+                renderGameTab();
             } else {
                 document.getElementById('feedTab').classList.add('hidden');
+                document.getElementById('gameTab').classList.add('hidden');
                 document.getElementById('profileTab').classList.remove('hidden');
-                await renderProfile();
+                renderProfile();
             }
         };
     });
 
-    // ЗАПУСК
-    console.log("Приложение запущено. Supabase:", !!supabase);
+    initTheme();
+    
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            currentUser = user;
+            await loadData();
+            showMainApp();
+        }
+    });
 </script>
 </body>
 </html>
