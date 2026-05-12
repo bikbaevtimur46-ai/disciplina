@@ -4,14 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
     <meta name="theme-color" content="#0a0c12">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Дисциплина | Социальная сеть</title>
     
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
     
     <style>
         * {
@@ -44,13 +41,10 @@
             --text-primary: #1a1f2e;
             --text-secondary: #5a6278;
             --accent: #ff5722;
-            --accent-hover: #ff7043;
             --border: #e2e6ed;
         }
 
-        body {
-            background: var(--bg-primary);
-        }
+        body { background: var(--bg-primary); }
 
         .auth-screen {
             min-height: 100vh;
@@ -91,10 +85,7 @@
             color: var(--text-primary);
         }
 
-        textarea {
-            resize: none;
-            font-family: inherit;
-        }
+        textarea { resize: none; font-family: inherit; }
 
         button {
             width: 100%;
@@ -108,11 +99,6 @@
             cursor: pointer;
         }
 
-        button:active {
-            opacity: 0.8;
-            transform: scale(0.98);
-        }
-
         .switch-btn {
             text-align: center;
             margin-top: 16px;
@@ -121,12 +107,7 @@
             padding: 8px;
         }
 
-        .error {
-            color: var(--accent);
-            font-size: 13px;
-            margin-top: 10px;
-            text-align: center;
-        }
+        .error { color: var(--accent); font-size: 13px; margin-top: 10px; text-align: center; }
 
         .main-app {
             display: none;
@@ -184,19 +165,12 @@
             border-radius: 30px;
         }
 
-        .tab.active {
-            background: var(--accent);
-            color: white;
-        }
+        .tab.active { background: var(--accent); color: white; }
 
-        .content {
-            padding: 12px;
-        }
+        .content { padding: 12px; }
+        .hidden { display: none; }
 
-        .hidden {
-            display: none;
-        }
-
+        /* ПОСТЫ */
         .post {
             background: var(--bg-card);
             border-radius: 20px;
@@ -208,7 +182,7 @@
         .post-header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: center;
             margin-bottom: 8px;
         }
 
@@ -222,19 +196,19 @@
             padding: 5px 0;
         }
 
-        .post-menu {
-            position: relative;
-        }
-
+        /* ТРИ ТОЧКИ */
+        .post-menu { position: relative; }
         .menu-dots {
             background: none;
             width: auto;
             padding: 8px 12px;
-            font-size: 18px;
+            font-size: 20px;
             color: var(--text-secondary);
             cursor: pointer;
             border-radius: 30px;
+            border: none;
         }
+        .menu-dots:active { background: var(--bg-input); }
 
         .menu-dropdown {
             position: absolute;
@@ -244,11 +218,10 @@
             border-radius: 14px;
             padding: 8px 0;
             min-width: 140px;
-            z-index: 50;
+            z-index: 999;
             box-shadow: 0 8px 20px rgba(0,0,0,0.3);
             border: 1px solid var(--border);
         }
-
         .menu-dropdown button {
             background: none;
             width: 100%;
@@ -258,21 +231,10 @@
             color: var(--text-primary);
             font-size: 14px;
         }
+        .menu-dropdown button:active { background: var(--accent); color: white; }
 
-        .post-text {
-            margin: 8px 0;
-            color: var(--text-primary);
-            line-height: 1.45;
-            font-size: 15px;
-        }
-
-        .post-photo {
-            max-width: 100%;
-            border-radius: 16px;
-            margin: 8px 0;
-            max-height: 300px;
-            object-fit: cover;
-        }
+        .post-text { margin: 8px 0; color: var(--text-primary); line-height: 1.45; font-size: 15px; }
+        .post-photo { max-width: 100%; border-radius: 16px; margin: 8px 0; max-height: 300px; object-fit: cover; cursor: pointer; }
 
         .post-footer {
             display: flex;
@@ -283,11 +245,7 @@
             border-top: 1px solid var(--border);
         }
 
-        .post-actions {
-            display: flex;
-            gap: 16px;
-        }
-
+        .post-actions { display: flex; gap: 16px; }
         .like-btn, .comment-toggle-btn {
             cursor: pointer;
             background: none;
@@ -300,78 +258,22 @@
             color: var(--text-secondary);
             font-size: 14px;
         }
+        .like-btn.liked { color: var(--like); }
+        .post-time-footer { font-size: 11px; color: var(--text-secondary); }
 
-        .like-btn.liked {
-            color: var(--like);
-        }
+        /* КОММЕНТАРИИ */
+        .comments-section { margin-top: 12px; padding-top: 8px; border-top: 1px solid var(--border); }
+        .comment { background: var(--comment-bg); border-radius: 16px; padding: 10px 14px; margin: 8px 0; }
+        .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .comment-author { font-weight: 600; font-size: 13px; color: var(--accent); cursor: pointer; background: none; border: none; padding: 0; }
+        .comment-date { font-size: 10px; color: var(--text-secondary); }
+        .comment-text { color: var(--text-primary); font-size: 13px; margin: 4px 0; }
 
-        .post-time-footer {
-            font-size: 11px;
-            color: var(--text-secondary);
-        }
+        .comment-input { display: flex; gap: 8px; margin-top: 12px; }
+        .comment-input input { flex: 1; padding: 12px; border-radius: 30px; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-primary); }
+        .comment-input button { width: auto; padding: 8px 20px; border-radius: 30px; }
 
-        .comments-section {
-            margin-top: 12px;
-            padding-top: 8px;
-            border-top: 1px solid var(--border);
-        }
-
-        .comment {
-            background: var(--comment-bg);
-            border-radius: 16px;
-            padding: 10px 14px;
-            margin: 8px 0;
-        }
-
-        .comment-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
-        }
-
-        .comment-author {
-            font-weight: 600;
-            font-size: 13px;
-            color: var(--accent);
-            cursor: pointer;
-            background: none;
-            border: none;
-            padding: 0;
-        }
-
-        .comment-date {
-            font-size: 10px;
-            color: var(--text-secondary);
-        }
-
-        .comment-text {
-            color: var(--text-primary);
-            font-size: 13px;
-            margin: 4px 0;
-        }
-
-        .comment-input {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-        }
-
-        .comment-input input {
-            flex: 1;
-            padding: 12px;
-            border-radius: 30px;
-            background: var(--bg-input);
-            border: 1px solid var(--border);
-            color: var(--text-primary);
-        }
-
-        .comment-input button {
-            width: auto;
-            padding: 8px 20px;
-            border-radius: 30px;
-        }
-
+        /* ПРОФИЛЬ */
         .profile-card {
             background: var(--bg-card);
             border-radius: 20px;
@@ -380,108 +282,23 @@
             border: 1px solid var(--border);
             margin-bottom: 16px;
         }
+        .avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin: 0 auto 12px; background: var(--border); border: 2px solid var(--accent); }
+        .stats { display: flex; justify-content: center; gap: 24px; margin: 16px 0; }
+        .stat-value { font-size: 18px; font-weight: 700; color: var(--accent); }
+        .stat-label { font-size: 11px; color: var(--text-secondary); }
+        .profile-buttons { display: flex; gap: 10px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
 
-        .avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin: 0 auto 12px;
-            background: var(--border);
-            border: 2px solid var(--accent);
-            cursor: pointer;
-        }
+        /* Кнопка загрузки фото */
+        .upload-btn { position: relative; margin: 8px 0; }
+        .upload-btn input[type="file"] { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; z-index: 2; }
+        .upload-label { display: flex; align-items: center; justify-content: center; gap: 10px; background: linear-gradient(135deg, var(--accent), var(--accent-hover)); border-radius: 14px; padding: 14px; cursor: pointer; color: white; font-size: 14px; font-weight: 600; }
+        .file-name { font-size: 12px; color: var(--accent); margin-top: 8px; display: block; text-align: center; }
 
-        .stats {
-            display: flex;
-            justify-content: center;
-            gap: 24px;
-            margin: 16px 0;
-        }
+        .edit-form { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); text-align: left; }
+        .profile-posts-title { font-size: 15px; font-weight: 600; margin: 16px 0 12px 0; color: var(--text-primary); }
+        .back-btn { background: var(--bg-input); width: auto; padding: 8px 16px; border-radius: 30px; color: var(--text-primary); }
 
-        .stat-value {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--accent);
-        }
-
-        .stat-label {
-            font-size: 11px;
-            color: var(--text-secondary);
-        }
-
-        .profile-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 12px;
-            flex-wrap: wrap;
-        }
-
-        /* Красивая кнопка загрузки фото */
-        .upload-btn {
-            position: relative;
-            margin: 8px 0;
-        }
-
-        .upload-btn input[type="file"] {
-            position: absolute;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-            z-index: 2;
-        }
-
-        .upload-label {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-            border-radius: 14px;
-            padding: 14px;
-            cursor: pointer;
-            transition: all 0.2s;
-            color: white;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .upload-label span:first-child {
-            font-size: 20px;
-        }
-
-        .file-name {
-            font-size: 12px;
-            color: var(--accent);
-            margin-top: 8px;
-            display: block;
-            text-align: center;
-        }
-
-        .edit-form {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border);
-            text-align: left;
-        }
-
-        .profile-posts-title {
-            font-size: 15px;
-            font-weight: 600;
-            margin: 16px 0 12px 0;
-            color: var(--text-primary);
-        }
-
-        .back-btn {
-            background: var(--bg-input);
-            width: auto;
-            padding: 8px 16px;
-            border-radius: 30px;
-            color: var(--text-primary);
-        }
-
+        /* Плавающая кнопка + */
         .fab {
             position: fixed;
             bottom: 20px;
@@ -500,11 +317,9 @@
             z-index: 200;
             border: none;
         }
+        .fab:active { transform: scale(0.95); }
 
-        .fab:active {
-            transform: scale(0.95);
-        }
-
+        /* Модальное окно */
         .modal {
             display: none;
             position: fixed;
@@ -518,7 +333,6 @@
             justify-content: center;
             padding: 20px;
         }
-
         .modal-content {
             background: var(--bg-card);
             border-radius: 28px;
@@ -527,143 +341,34 @@
             max-width: 400px;
             border: 1px solid var(--border);
         }
+        .modal-content h3 { margin-bottom: 16px; color: var(--text-primary); font-size: 20px; text-align: center; }
+        .modal-buttons { display: flex; gap: 10px; margin-top: 12px; }
+        .modal-buttons button { flex: 1; }
+        .cancel-modal { background: var(--bg-input); color: var(--text-primary); }
 
-        .modal-content h3 {
-            margin-bottom: 16px;
-            color: var(--text-primary);
-            font-size: 20px;
-            text-align: center;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 12px;
-        }
-
-        .modal-buttons button {
-            flex: 1;
-        }
-
-        .cancel-modal {
-            background: var(--bg-input);
-            color: var(--text-primary);
-        }
-
-        .game-card {
-            background: var(--bg-card);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border);
-        }
-
-        .game-header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .game-icon {
-            font-size: 48px;
-            margin-bottom: 10px;
-        }
-
-        .game-title {
-            font-size: 22px;
-            font-weight: bold;
-            color: var(--accent);
-        }
-
-        .dice-container {
-            background: linear-gradient(135deg, var(--bg-input), var(--bg-card));
-            border-radius: 20px;
-            padding: 30px;
-            text-align: center;
-            margin: 20px 0;
-            border: 1px solid var(--border);
-        }
-
-        .dice-value {
-            font-size: 70px;
-            font-weight: bold;
-            margin: 20px 0;
-        }
-
+        /* ИГРА */
+        .game-card { background: var(--bg-card); border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border); }
+        .game-header { text-align: center; margin-bottom: 20px; }
+        .game-icon { font-size: 48px; margin-bottom: 10px; }
+        .game-title { font-size: 22px; font-weight: bold; color: var(--accent); }
+        .dice-container { background: linear-gradient(135deg, var(--bg-input), var(--bg-card)); border-radius: 20px; padding: 30px; text-align: center; margin: 20px 0; border: 1px solid var(--border); }
+        .dice-value { font-size: 70px; font-weight: bold; margin: 20px 0; }
         .dice-value.positive { color: var(--success); }
         .dice-value.negative { color: #f44336; }
+        .roll-button { font-size: 18px; padding: 14px; border-radius: 50px; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+        .stat-card { background: var(--bg-input); border-radius: 16px; padding: 15px; text-align: center; border: 1px solid var(--border); }
 
-        .roll-button {
-            font-size: 18px;
-            padding: 14px;
-            border-radius: 50px;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin: 20px 0;
-        }
-
-        .stat-card {
-            background: var(--bg-input);
-            border-radius: 16px;
-            padding: 15px;
-            text-align: center;
-            border: 1px solid var(--border);
-        }
-
-        .leaderboard {
-            background: var(--bg-card);
-            border-radius: 20px;
-            padding: 16px;
-            border: 1px solid var(--border);
-        }
-
-        .leaderboard-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 16px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .leaderboard-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: var(--text-primary);
-        }
-
-        .leaderboard-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px;
-            border-radius: 12px;
-            margin-bottom: 6px;
-            cursor: pointer;
-        }
-
-        .leaderboard-rank {
-            font-weight: bold;
-            min-width: 35px;
-            color: var(--accent);
-        }
-
+        .leaderboard { background: var(--bg-card); border-radius: 20px; padding: 16px; border: 1px solid var(--border); }
+        .leaderboard-header { display: flex; justify-content: space-between; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+        .leaderboard-title { font-size: 18px; font-weight: bold; color: var(--text-primary); }
+        .leaderboard-item { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 12px; margin-bottom: 6px; cursor: pointer; }
+        .leaderboard-rank { font-weight: bold; min-width: 35px; color: var(--accent); }
         .rank-1 { color: #ffd700; }
         .rank-2 { color: #c0c0c0; }
         .rank-3 { color: #cd7f32; }
-
-        .leaderboard-name {
-            flex: 1;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .leaderboard-score {
-            color: var(--accent);
-            font-weight: bold;
-        }
+        .leaderboard-name { flex: 1; font-weight: 600; color: var(--text-primary); }
+        .leaderboard-score { color: var(--accent); font-weight: bold; }
 
         @media (max-width: 500px) {
             .content { padding: 8px; }
@@ -718,10 +423,7 @@
             <textarea id="modalPostText" rows="3" placeholder="Что у тебя нового?"></textarea>
             <div class="upload-btn">
                 <input type="file" id="modalPostPhoto" accept="image/*" onchange="updateFileName(this)">
-                <div class="upload-label">
-                    <span>📷</span>
-                    <span>Выбрать фото</span>
-                </div>
+                <div class="upload-label"><span>📷</span><span>Выбрать фото</span></div>
                 <span id="fileNameDisplay" class="file-name"></span>
             </div>
             <div class="modal-buttons">
@@ -756,6 +458,7 @@
     let viewingUserId = null;
     let isLoginMode = false;
 
+    // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
     function updateFileName(input) {
         const fileName = input.files[0]?.name || '';
         const display = document.getElementById('fileNameDisplay');
@@ -778,6 +481,7 @@
         return str.replace(/[&<>]/g, (m) => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
     }
 
+    // ========== ЗАГРУЗКА ДАННЫХ ==========
     async function loadData() {
         const usersSnapshot = await db.collection('users').get();
         users = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -787,6 +491,7 @@
         gameStats = statsSnapshot.docs.map(doc => ({ userId: doc.id, ...doc.data() }));
     }
 
+    // ========== ПОСТЫ ==========
     async function savePost(text, photoUrl) {
         await db.collection('posts').add({
             userId: currentUser.uid,
@@ -814,7 +519,7 @@
         if (!text.trim()) return;
         const post = posts.find(p => p.id === postId);
         const comments = post.comments || [];
-        comments.push({ userId: currentUser.uid, text, date: new Date().toISOString() });
+        comments.push({ userId: currentUser.uid, text: text, date: new Date().toISOString() });
         await db.collection('posts').doc(postId).update({ comments });
         await loadData();
         commentsVisible[postId] = true;
@@ -839,16 +544,46 @@
         }
     }
 
+    // ========== ПРОФИЛЬ ==========
     async function updateUserProfile(userId, data) {
         await db.collection('users').doc(userId).update(data);
         await loadData();
-        if (userId === currentUser.uid) {
-            currentUser = users.find(u => u.id === userId);
-        }
         renderProfile();
         renderFeed();
     }
 
+    // ========== ИГРА ==========
+    function rollNumber() { return Math.floor(Math.random() * 16) - 5; }
+
+    async function playGame() {
+        const stats = gameStats.find(s => s.userId === currentUser.uid);
+        const lastDate = stats?.lastAttemptDate?.toDate ? stats.lastAttemptDate.toDate() : null;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        if (lastDate && lastDate >= today) {
+            alert('Вы уже играли сегодня! Завтра новая попытка.');
+            return;
+        }
+        
+        const rolled = rollNumber();
+        const newTotal = (stats?.totalPoints || 0) + rolled;
+        const newBest = Math.max(rolled, stats?.bestRoll || -5);
+        
+        await db.collection('gameStats').doc(currentUser.uid).set({
+            userId: currentUser.uid,
+            totalPoints: newTotal,
+            bestRoll: newBest,
+            lastAttemptDate: firebase.firestore.FieldValue.serverTimestamp(),
+            lastRollValue: rolled
+        });
+        
+        await loadData();
+        renderGameTab();
+        alert(rolled >= 0 ? `🎉 +${rolled} очков!\nВсего: ${newTotal}` : `😢 ${rolled} очков.\nВсего: ${newTotal}`);
+    }
+
+    // ========== РЕНДЕР ЛЕНТЫ (С ТОЧКАМИ И КОММЕНТАРИЯМИ) ==========
     async function renderFeed() {
         const container = document.getElementById('postsList');
         if (!posts.length) {
@@ -864,7 +599,7 @@
             const showMenu = openMenus[post.id];
             
             return `
-                <div class="post">
+                <div class="post" data-post-id="${post.id}">
                     <div class="post-header">
                         <button class="post-author" onclick="viewProfile('${post.userId}')">${escapeHtml(author?.name || '?')}</button>
                         ${isAuthor ? `
@@ -889,7 +624,7 @@
                         <div class="post-time-footer">${formatDate(post.date)}</div>
                     </div>
                     ${showComments ? `
-                        <div class="comments-section">
+                        <div class="comments-section" id="comments-section-${post.id}">
                             ${(post.comments || []).map(c => {
                                 const commentAuthor = users.find(u => u.id === c.userId);
                                 return `
@@ -931,6 +666,7 @@
         }
     });
 
+    // ========== ПРОФИЛЬ ==========
     async function renderProfile() {
         const container = document.getElementById('profileContainer');
         const profileUser = users.find(u => u.id === viewingUserId);
@@ -968,10 +704,7 @@
                         <textarea id="editBio" rows="2" placeholder="О себе">${escapeHtml(profileUser.bio || '')}</textarea>
                         <div class="upload-btn">
                             <input type="file" id="editAvatar" accept="image/*" onchange="updateAvatarPreview(this)">
-                            <div class="upload-label">
-                                <span>📷</span>
-                                <span>Выбрать аватар</span>
-                            </div>
+                            <div class="upload-label"><span>📷</span><span>Выбрать аватар</span></div>
                             <span id="avatarFileNameDisplay" class="file-name"></span>
                         </div>
                         <button id="saveProfileBtn">Сохранить</button>
@@ -995,49 +728,36 @@
             `).join('');
         }
         
-        if (isOwn) setupProfileEditing();
-    }
-
-    function setupProfileEditing() {
-        const editBtn = document.getElementById('editProfileBtn');
-        const saveBtn = document.getElementById('saveProfileBtn');
-        const cancelBtn = document.getElementById('cancelEditBtn');
-        const themeBtn = document.getElementById('themeBtn');
-        
-        editBtn?.addEventListener('click', () => {
-            document.getElementById('editProfileForm').classList.remove('hidden');
-        });
-        
-        saveBtn?.addEventListener('click', async () => {
-            const newName = document.getElementById('editName').value.trim();
-            if (newName && newName !== currentUser.name) {
-                if (users.find(u => u.name === newName && u.id !== currentUser.uid)) {
-                    alert('Имя уже занято');
-                    return;
+        if (isOwn) {
+            document.getElementById('editProfileBtn')?.addEventListener('click', () => {
+                document.getElementById('editProfileForm').classList.remove('hidden');
+            });
+            document.getElementById('saveProfileBtn')?.addEventListener('click', async () => {
+                const newName = document.getElementById('editName').value.trim();
+                if (newName && newName !== currentUser.name) {
+                    if (users.find(u => u.name === newName && u.id !== currentUser.uid)) {
+                        alert('Имя уже занято');
+                        return;
+                    }
+                    await updateUserProfile(currentUser.uid, { name: newName });
                 }
-                await updateUserProfile(currentUser.uid, { name: newName });
-            }
-            const newBio = document.getElementById('editBio').value.trim();
-            await updateUserProfile(currentUser.uid, { bio: newBio });
-            
-            document.getElementById('editProfileForm').classList.add('hidden');
-            alert('Профиль обновлён!');
-        });
-        
-        cancelBtn?.addEventListener('click', () => {
-            document.getElementById('editProfileForm').classList.add('hidden');
-        });
-        
-        themeBtn?.addEventListener('click', toggleTheme);
+                const newBio = document.getElementById('editBio').value.trim();
+                await updateUserProfile(currentUser.uid, { bio: newBio });
+                document.getElementById('editProfileForm').classList.add('hidden');
+                alert('Профиль обновлён!');
+            });
+            document.getElementById('cancelEditBtn')?.addEventListener('click', () => {
+                document.getElementById('editProfileForm').classList.add('hidden');
+            });
+            document.getElementById('themeBtn')?.addEventListener('click', toggleTheme);
+        }
     }
 
     function updateAvatarPreview(input) {
         const file = input.files[0];
         if (!file) return;
-        
         const display = document.getElementById('avatarFileNameDisplay');
         display.textContent = `📎 ${file.name.substring(0, 30)}${file.name.length > 30 ? '...' : ''}`;
-        
         const reader = new FileReader();
         reader.onload = async (e) => {
             await updateUserProfile(currentUser.uid, { avatar: e.target.result });
@@ -1045,36 +765,7 @@
         reader.readAsDataURL(file);
     }
 
-    function rollNumber() { return Math.floor(Math.random() * 16) - 5; }
-
-    async function playGame() {
-        const stats = gameStats.find(s => s.userId === currentUser.uid);
-        const lastDate = stats?.lastAttemptDate?.toDate ? stats.lastAttemptDate.toDate() : null;
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        if (lastDate && lastDate >= today) {
-            alert('Вы уже играли сегодня! Завтра новая попытка.');
-            return;
-        }
-        
-        const rolled = rollNumber();
-        const newTotal = (stats?.totalPoints || 0) + rolled;
-        const newBest = Math.max(rolled, stats?.bestRoll || -5);
-        
-        await db.collection('gameStats').doc(currentUser.uid).set({
-            userId: currentUser.uid,
-            totalPoints: newTotal,
-            bestRoll: newBest,
-            lastAttemptDate: firebase.firestore.FieldValue.serverTimestamp(),
-            lastRollValue: rolled
-        });
-        
-        await loadData();
-        renderGameTab();
-        alert(rolled >= 0 ? `🎉 +${rolled} очков!\nВсего: ${newTotal}` : `😢 ${rolled} очков.\nВсего: ${newTotal}`);
-    }
-
+    // ========== ИГРА ==========
     async function renderGameTab() {
         const container = document.getElementById('gameContainer');
         const stats = gameStats.find(s => s.userId === currentUser.uid);
@@ -1138,7 +829,7 @@
         `;
     }
 
-    // Авторизация
+    // ========== АВТОРИЗАЦИЯ ==========
     const authScreen = document.getElementById('authScreen');
     const mainApp = document.getElementById('mainApp');
     const submitBtn = document.getElementById('submitAuthBtn');
@@ -1221,7 +912,7 @@
         renderProfile();
     };
 
-    // Глобальные функции
+    // ========== ГЛОБАЛЬНЫЕ ФУНКЦИИ ==========
     window.viewProfile = (userId) => {
         viewingUserId = userId;
         renderProfile();
@@ -1232,8 +923,9 @@
     window.toggleComments = toggleComments;
     window.deletePost = deletePost;
     window.editPost = editPost;
+    window.toggleMenu = window.toggleMenu;
 
-    // Модальное окно поста
+    // ========== СОЗДАНИЕ ПОСТА ==========
     const modal = document.getElementById('postModal');
     const fabBtn = document.getElementById('fabBtn');
 
@@ -1241,8 +933,8 @@
         modal.style.display = 'flex';
         document.getElementById('modalPostText').value = '';
         document.getElementById('modalPostPhoto').value = '';
-        const nameDisplay = document.getElementById('fileNameDisplay');
-        if (nameDisplay) nameDisplay.textContent = '';
+        const display = document.getElementById('fileNameDisplay');
+        if (display) display.textContent = '';
         document.getElementById('modalPostText').focus();
     };
 
@@ -1255,10 +947,7 @@
         
         const file = document.getElementById('modalPostPhoto').files[0];
         if (file) {
-            if (file.size > 2 * 1024 * 1024) {
-                alert('Файл слишком большой! Используйте фото до 2 МБ');
-                return;
-            }
+            if (file.size > 2 * 1024 * 1024) { alert('Файл слишком большой! Не более 2 МБ'); return; }
             const reader = new FileReader();
             reader.onload = async (e) => { await savePost(text, e.target.result); modal.style.display = 'none'; };
             reader.readAsDataURL(file);
@@ -1268,7 +957,7 @@
         }
     };
 
-    // Табы
+    // ========== ТАБЫ ==========
     document.querySelectorAll('.tab').forEach(tab => {
         tab.onclick = () => {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
