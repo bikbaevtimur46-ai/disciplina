@@ -206,7 +206,6 @@
             border-radius: 30px;
             border: none;
         }
-        .menu-dots:active { background: var(--bg-input); }
 
         .menu-dropdown {
             position: absolute;
@@ -229,7 +228,6 @@
             color: var(--text-primary);
             font-size: 14px;
         }
-        .menu-dropdown button:active { background: var(--accent); color: white; }
 
         .post-text { margin: 8px 0; color: var(--text-primary); line-height: 1.45; font-size: 15px; }
         .post-photo { max-width: 100%; border-radius: 16px; margin: 8px 0; max-height: 300px; object-fit: cover; cursor: pointer; }
@@ -259,83 +257,90 @@
         .like-btn.liked { color: var(--like); }
         .post-time-footer { font-size: 11px; color: var(--text-secondary); }
 
-        /* КОММЕНТАРИИ - КРАСИВЫЕ И УДОБНЫЕ */
-        .comments-wrapper { margin-top: 12px; }
-        .comments-list { max-height: 300px; overflow-y: auto; margin-bottom: 10px; }
-        
-        .comment {
+        /* КОММЕНТАРИИ - ПРОСТЫЕ И НАДЁЖНЫЕ */
+        .comments-area {
+            margin-top: 12px;
+            border-top: 1px solid var(--border);
+            padding-top: 10px;
+        }
+        .comment-item {
             background: var(--comment-bg);
-            border-radius: 16px;
-            padding: 10px 14px;
+            border-radius: 14px;
+            padding: 8px 12px;
             margin-bottom: 8px;
         }
-        .comment-header {
+        .comment-item-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
-        .comment-author {
-            font-weight: 600;
-            font-size: 13px;
+        .comment-item-author {
+            font-size: 12px;
+            font-weight: bold;
             color: var(--accent);
             cursor: pointer;
             background: none;
             border: none;
-            padding: 0;
         }
-        .comment-date { font-size: 10px; color: var(--text-secondary); }
-        .comment-text { color: var(--text-primary); font-size: 13px; margin: 4px 0; line-height: 1.4; }
-
-        .comment-form {
+        .comment-item-date {
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+        .comment-item-text {
+            font-size: 13px;
+            color: var(--text-primary);
+            word-break: break-word;
+        }
+        .comment-item-actions {
+            margin-top: 6px;
+            display: flex;
+            gap: 12px;
+        }
+        .comment-item-actions button {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 11px;
+            padding: 2px 8px;
+            cursor: pointer;
+            border-radius: 12px;
+            width: auto;
+        }
+        .comment-item-actions button:hover {
+            background: var(--border);
+        }
+        .comment-input-area {
             display: flex;
             gap: 8px;
-            margin-top: 8px;
+            margin-top: 10px;
             background: var(--bg-input);
             border-radius: 30px;
-            padding: 4px;
+            padding: 4px 4px 4px 12px;
         }
-        .comment-form input {
+        .comment-input-area input {
             flex: 1;
-            padding: 12px 16px;
-            border-radius: 30px;
             background: transparent;
             border: none;
-            color: var(--text-primary);
-            font-size: 15px;
-            outline: none;
-        }
-        .comment-form input:focus {
-            border: none;
-            outline: none;
-        }
-        .comment-form button {
-            width: auto;
-            padding: 8px 20px;
-            border-radius: 30px;
+            padding: 10px 0;
             margin: 0;
+            font-size: 14px;
+        }
+        .comment-input-area input:focus {
+            outline: none;
+        }
+        .comment-input-area button {
+            width: auto;
+            padding: 8px 18px;
+            margin: 0;
+            border-radius: 30px;
             background: var(--accent);
         }
-        .no-comments {
+        .no-comments-text {
             text-align: center;
             color: var(--text-secondary);
-            padding: 12px;
-            font-size: 13px;
-        }
-
-        /* Анимация для комментариев */
-        .comment-enter {
-            animation: fadeInUp 0.3s ease;
-        }
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            font-size: 12px;
+            padding: 8px;
         }
 
         .profile-card {
@@ -346,7 +351,7 @@
             border: 1px solid var(--border);
             margin-bottom: 16px;
         }
-        .avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin: 0 auto 12px; background: var(--border); border: 2px solid var(--accent); cursor: pointer; }
+        .avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin: 0 auto 12px; background: var(--border); border: 2px solid var(--accent); }
         .stats { display: flex; justify-content: center; gap: 24px; margin: 16px 0; }
         .stat-value { font-size: 18px; font-weight: 700; color: var(--accent); }
         .stat-label { font-size: 11px; color: var(--text-secondary); }
@@ -391,7 +396,6 @@
             z-index: 200;
             border: none;
         }
-        .fab:active { transform: scale(0.95); }
 
         .modal {
             display: none;
@@ -421,17 +425,17 @@
 
         .game-card { background: var(--bg-card); border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border); }
         .game-header { text-align: center; margin-bottom: 20px; }
-        .game-icon { font-size: 48px; margin-bottom: 10px; }
-        .game-title { font-size: 22px; font-weight: bold; color: var(--accent); }
-        .dice-container { background: linear-gradient(135deg, var(--bg-input), var(--bg-card)); border-radius: 20px; padding: 30px; text-align: center; margin: 20px 0; border: 1px solid var(--border); }
+        .game-icon { font-size: 48px; }
+        .game-title { font-size: 22px; font-weight: bold; color: var(--accent); margin: 10px 0; }
+        .dice-container { background: linear-gradient(135deg, var(--bg-input), var(--bg-card)); border-radius: 20px; padding: 30px; text-align: center; margin: 20px 0; }
         .dice-value { font-size: 70px; font-weight: bold; margin: 20px 0; }
         .dice-value.positive { color: var(--success); }
         .dice-value.negative { color: #f44336; }
         .roll-button { font-size: 18px; padding: 14px; border-radius: 50px; }
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
-        .stat-card { background: var(--bg-input); border-radius: 16px; padding: 15px; text-align: center; border: 1px solid var(--border); }
+        .stat-card { background: var(--bg-input); border-radius: 16px; padding: 15px; text-align: center; }
 
-        .leaderboard { background: var(--bg-card); border-radius: 20px; padding: 16px; border: 1px solid var(--border); }
+        .leaderboard { background: var(--bg-card); border-radius: 20px; padding: 16px; }
         .leaderboard-header { display: flex; justify-content: space-between; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
         .leaderboard-title { font-size: 18px; font-weight: bold; color: var(--text-primary); }
         .leaderboard-item { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 12px; margin-bottom: 6px; cursor: pointer; }
@@ -440,15 +444,12 @@
         .rank-2 { color: #c0c0c0; }
         .rank-3 { color: #cd7f32; }
         .leaderboard-name { flex: 1; font-weight: 600; color: var(--text-primary); }
-        .leaderboard-score { color: var(--accent); font-weight: bold; }
 
         @media (max-width: 500px) {
             .content { padding: 8px; }
             .fab { width: 55px; height: 55px; font-size: 28px; }
             .post-actions { gap: 8px; }
-            .like-btn, .comment-toggle-btn { padding: 6px 10px; font-size: 13px; }
-            .comment-form input { font-size: 15px; padding: 10px 14px; }
-            .comment-form button { padding: 6px 16px; }
+            .comment-input-area input { font-size: 15px; }
         }
     </style>
 </head>
@@ -549,7 +550,6 @@
         return str.replace(/[&<>]/g, (m) => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
     }
 
-    // Сжатие фото
     function compressImage(file, maxWidth = 900) {
         return new Promise((resolve, reject) => {
             if (!file.type.match(/image.*/)) {
@@ -619,12 +619,9 @@
         renderFeed();
     }
 
-    // ========== КОММЕНТАРИИ (УДОБНЫЕ) ==========
+    // ========== КОММЕНТАРИИ ==========
     async function addComment(postId, commentText) {
-        if (!commentText || !commentText.trim()) {
-            alert('Напишите комментарий');
-            return;
-        }
+        if (!commentText || !commentText.trim()) return;
         
         const post = posts.find(p => p.id === postId);
         if (!post) return;
@@ -638,15 +635,15 @@
         
         await db.collection('posts').doc(postId).update({ comments });
         await loadData();
-        
-        // Открываем и скроллим к комментариям
         openComments[postId] = true;
         renderFeed();
         
-        // Прокрутка к последнему комментарию
+        // Прокрутка к комментариям
         setTimeout(() => {
-            const commentsDiv = document.querySelector(`#post-${postId} .comments-list`);
-            if (commentsDiv) commentsDiv.scrollTop = commentsDiv.scrollHeight;
+            const commentsDiv = document.getElementById(`comments-panel-${postId}`);
+            if (commentsDiv) commentsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            const input = document.getElementById(`comment-input-${postId}`);
+            if (input) input.value = '';
         }, 100);
     }
     
@@ -692,44 +689,6 @@
         }
     }
 
-    async function updateUserProfile(userId, data) {
-        await db.collection('users').doc(userId).update(data);
-        await loadData();
-        renderProfile();
-        renderFeed();
-    }
-
-    // Игра
-    function rollNumber() { return Math.floor(Math.random() * 16) - 5; }
-
-    async function playGame() {
-        const stats = gameStats.find(s => s.userId === currentUser.uid);
-        const lastDate = stats?.lastAttemptDate?.toDate ? stats.lastAttemptDate.toDate() : null;
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        if (lastDate && lastDate >= today) {
-            alert('Вы уже играли сегодня! Завтра новая попытка.');
-            return;
-        }
-        
-        const rolled = rollNumber();
-        const newTotal = (stats?.totalPoints || 0) + rolled;
-        const newBest = Math.max(rolled, stats?.bestRoll || -5);
-        
-        await db.collection('gameStats').doc(currentUser.uid).set({
-            userId: currentUser.uid,
-            totalPoints: newTotal,
-            bestRoll: newBest,
-            lastAttemptDate: firebase.firestore.FieldValue.serverTimestamp(),
-            lastRollValue: rolled
-        });
-        
-        await loadData();
-        renderGameTab();
-        alert(rolled >= 0 ? `🎉 +${rolled} очков!\nВсего: ${newTotal}` : `😢 ${rolled} очков.\nВсего: ${newTotal}`);
-    }
-
     // ========== РЕНДЕР ЛЕНТЫ ==========
     async function renderFeed() {
         const container = document.getElementById('postsList');
@@ -763,7 +722,7 @@
                         ` : ''}
                     </div>
                     <div class="post-text">${escapeHtml(post.text)}</div>
-                    ${post.photo ? `<img src="${post.photo}" class="post-photo" onclick="window.open(this.src)">` : ''}
+                    ${post.photo ? `<img src="${post.photo}" class="post-photo">` : ''}
                     <div class="post-footer">
                         <div class="post-actions">
                             <button class="like-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}', ${JSON.stringify(post).replace(/"/g, '&quot;')})">❤️ ${post.likes?.length || 0}</button>
@@ -771,63 +730,44 @@
                         </div>
                         <div class="post-time-footer">${formatDate(post.date)}</div>
                     </div>
-                    ${showComments ? renderCommentsSection(post.id, comments) : ''}
+                    ${showComments ? `
+                        <div class="comments-area" id="comments-panel-${post.id}">
+                            ${comments.length === 0 ? '<div class="no-comments-text">✨ Нет комментариев</div>' : ''}
+                            ${comments.map((c, idx) => {
+                                const commentAuthor = users.find(u => u.id === c.userId);
+                                const isCommentOwner = c.userId === currentUser.uid;
+                                return `
+                                    <div class="comment-item" id="comment-${post.id}-${idx}">
+                                        <div class="comment-item-header">
+                                            <button class="comment-item-author" onclick="viewProfile('${c.userId}')">${escapeHtml(commentAuthor?.name || '?')}</button>
+                                            <span class="comment-item-date">${formatDate(c.date)}</span>
+                                        </div>
+                                        <div class="comment-item-text" id="comment-text-${post.id}-${idx}">${escapeHtml(c.text)}</div>
+                                        ${isCommentOwner ? `
+                                            <div class="comment-item-actions">
+                                                <button onclick="editCommentUI('${post.id}', ${idx})">✏️ Ред.</button>
+                                                <button onclick="deleteComment('${post.id}', ${idx})">🗑️ Удалить</button>
+                                            </div>
+                                            <div id="editCommentForm-${post.id}-${idx}" style="display: none; margin-top: 8px;">
+                                                <input type="text" id="editCommentInput-${post.id}-${idx}" value="${escapeHtml(c.text)}" style="width:100%; padding:8px; border-radius:25px; background:var(--bg-input); border:1px solid var(--border); color:var(--text-primary);">
+                                                <div style="display: flex; gap: 8px; margin-top: 6px;">
+                                                    <button onclick="saveCommentEdit('${post.id}', ${idx})" style="width: auto; padding: 6px 12px;">Сохранить</button>
+                                                    <button onclick="cancelCommentEdit('${post.id}', ${idx})" style="width: auto; padding: 6px 12px; background: var(--bg-input);">Отмена</button>
+                                                </div>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                `;
+                            }).join('')}
+                            <div class="comment-input-area">
+                                <input type="text" id="comment-input-${post.id}" placeholder="Написать комментарий..." autocomplete="off">
+                                <button onclick="submitComment('${post.id}')">→</button>
+                            </div>
+                        </div>
+                    ` : ''}
                 </div>
             `;
         }).join('');
-    }
-    
-    function renderCommentsSection(postId, comments) {
-        if (!comments || comments.length === 0) {
-            return `
-                <div class="comments-wrapper">
-                    <div class="comments-list">
-                        <div class="no-comments">✨ Нет комментариев. Будь первым!</div>
-                    </div>
-                    <div class="comment-form">
-                        <input type="text" id="comment-input-${postId}" placeholder="Написать комментарий..." autocomplete="off" enterkeyhint="send">
-                        <button onclick="submitComment('${postId}')">→</button>
-                    </div>
-                </div>
-            `;
-        }
-        
-        return `
-            <div class="comments-wrapper">
-                <div class="comments-list">
-                    ${comments.map((comment, idx) => {
-                        const commentAuthor = users.find(u => u.id === comment.userId);
-                        const isCommentAuthor = comment.userId === currentUser.uid;
-                        return `
-                            <div class="comment" id="comment-${postId}-${idx}">
-                                <div class="comment-header">
-                                    <button class="comment-author" onclick="viewProfile('${comment.userId}')">${escapeHtml(commentAuthor?.name || '?')}</button>
-                                    <span class="comment-date">${formatDate(comment.date)}</span>
-                                </div>
-                                <div class="comment-text" id="comment-text-${postId}-${idx}">${escapeHtml(comment.text)}</div>
-                                ${isCommentAuthor ? `
-                                    <div style="display: flex; gap: 12px; margin-top: 6px;">
-                                        <button onclick="editCommentUI('${postId}', ${idx})" style="background:none; border:none; color:var(--accent); font-size:12px; cursor:pointer; opacity:0.7;">✏️ Редактировать</button>
-                                        <button onclick="deleteComment('${postId}', ${idx})" style="background:none; border:none; color:var(--accent); font-size:12px; cursor:pointer; opacity:0.7;">🗑️ Удалить</button>
-                                    </div>
-                                    <div id="editCommentForm-${postId}-${idx}" style="display:none; margin-top:8px;">
-                                        <input type="text" id="editCommentInput-${postId}-${idx}" value="${escapeHtml(comment.text)}" style="width:100%; padding:10px; border-radius:25px; background:var(--bg-input); border:1px solid var(--border); color:var(--text-primary); font-size:14px;">
-                                        <div style="display:flex; gap:8px; margin-top:6px;">
-                                            <button onclick="saveCommentEdit('${postId}', ${idx})" style="width:auto; padding:6px 12px; background:var(--accent);">Сохранить</button>
-                                            <button onclick="cancelCommentEdit('${postId}', ${idx})" style="width:auto; padding:6px 12px; background:var(--bg-input);">Отмена</button>
-                                        </div>
-                                    </div>
-                                ` : ''}
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-                <div class="comment-form">
-                    <input type="text" id="comment-input-${postId}" placeholder="Написать комментарий..." autocomplete="off" enterkeyhint="send">
-                    <button onclick="submitComment('${postId}')">→</button>
-                </div>
-            </div>
-        `;
     }
     
     // Глобальные функции для комментариев
@@ -836,9 +776,6 @@
         const text = input?.value;
         if (!text || !text.trim()) return;
         await addComment(postId, text);
-        input.value = '';
-        // Фокусируем обратно на поле ввода после отправки
-        input.focus();
     };
     
     window.editCommentUI = function(postId, idx) {
@@ -867,7 +804,6 @@
     function toggleComments(postId) {
         openComments[postId] = !openComments[postId];
         renderFeed();
-        // Фокусируем поле ввода если открыли комментарии
         if (openComments[postId]) {
             setTimeout(() => {
                 const input = document.getElementById(`comment-input-${postId}`);
@@ -876,118 +812,66 @@
         }
     }
     
-    // Обработка Enter на поле ввода комментария (через делегирование)
+    // Отправка по Enter
     document.addEventListener('keypress', function(e) {
         if (e.target && e.target.id && e.target.id.startsWith('comment-input-')) {
             if (e.key === 'Enter') {
                 e.preventDefault();
                 const postId = e.target.id.replace('comment-input-', '');
-                window.submitComment(postId);
+                submitComment(postId);
             }
         }
     });
+    
+    // Меню
+    window.toggleMenu = function(postId) {
+        if (openMenus[postId]) delete openMenus[postId];
+        else { openMenus = {}; openMenus[postId] = true; }
+        renderFeed();
+    };
+    
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.post-menu')) {
+            openMenus = {};
+            renderFeed();
+        }
+    });
 
-    // ========== ПРОФИЛЬ ==========
-    async function renderProfile() {
-        const container = document.getElementById('profileContainer');
-        const profileUser = users.find(u => u.id === viewingUserId);
-        if (!profileUser) return;
+    // Профиль
+    window.viewProfile = function(userId) {
+        viewingUserId = userId;
+        renderProfile();
+        document.querySelector('.tab[data-tab="profile"]').click();
+    };
+
+    async function runGame() {
+        const stats = gameStats.find(s => s.userId === currentUser.uid);
+        const lastDate = stats?.lastAttemptDate?.toDate ? stats.lastAttemptDate.toDate() : null;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
         
-        const isOwn = viewingUserId === currentUser.uid;
-        document.getElementById('backBtn').classList.toggle('hidden', isOwn);
-        
-        const userPosts = posts.filter(p => p.userId === viewingUserId);
-        const userStats = gameStats.find(s => s.userId === viewingUserId) || { totalPoints: 0, bestRoll: -5 };
-        
-        container.innerHTML = `
-            <div class="profile-card">
-                <img class="avatar" src="${profileUser.avatar || 'https://via.placeholder.com/80?text=?'}">
-                <h3 style="color:var(--text-primary);">${escapeHtml(profileUser.name)}</h3>
-                <p style="color:var(--text-secondary); font-size:13px; margin-top:6px;">${escapeHtml(profileUser.bio || 'Нет описания')}</p>
-                <div class="stats">
-                    <div><div class="stat-value">${userPosts.length}</div><div class="stat-label">посты</div></div>
-                    <div><div class="stat-value">${profileUser.followers?.length || 0}</div><div class="stat-label">подписчики</div></div>
-                    <div><div class="stat-value">${profileUser.following?.length || 0}</div><div class="stat-label">подписки</div></div>
-                </div>
-                <div class="stats">
-                    <div><div class="stat-value" style="color:var(--success);">${userStats.totalPoints}</div><div class="stat-label">очков</div></div>
-                    <div><div class="stat-value" style="color:#ff9800;">${userStats.bestRoll >= 0 ? '+' : ''}${userStats.bestRoll}</div><div class="stat-label">лучший бросок</div></div>
-                </div>
-                <div class="profile-buttons">
-                    ${!isOwn ? `<button class="follow-btn" style="background:var(--bg-input);color:var(--accent);border:1px solid var(--accent);" onclick="alert('Подписки в разработке')">Подписаться</button>` : `
-                        <button id="editProfileBtn">✏️ Редактировать</button>
-                        <button id="themeBtn">🌓 Тема</button>
-                    `}
-                </div>
-                ${isOwn ? `
-                    <div id="editProfileForm" class="edit-form hidden">
-                        <input type="text" id="editName" placeholder="Имя" value="${escapeHtml(profileUser.name)}">
-                        <textarea id="editBio" rows="2" placeholder="О себе">${escapeHtml(profileUser.bio || '')}</textarea>
-                        <div class="upload-btn">
-                            <input type="file" id="editAvatar" accept="image/*">
-                            <div class="upload-label"><span>📷</span><span>Выбрать аватар</span></div>
-                            <span id="avatarFileNameDisplay" class="file-name"></span>
-                        </div>
-                        <button id="saveProfileBtn">Сохранить</button>
-                        <button id="cancelEditBtn">Отмена</button>
-                    </div>
-                ` : ''}
-            </div>
-            <div class="profile-posts-title">📝 Посты</div>
-            <div id="profilePosts"></div>
-        `;
-        
-        const profilePosts = document.getElementById('profilePosts');
-        if (!userPosts.length) profilePosts.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:30px;">Нет постов</div>';
-        else {
-            profilePosts.innerHTML = userPosts.map(post => `
-                <div class="post">
-                    <div class="post-text">${escapeHtml(post.text)}</div>
-                    ${post.photo ? `<img src="${post.photo}" class="post-photo">` : ''}
-                    <div class="post-footer"><div class="post-time-footer">${formatDate(post.date)}</div></div>
-                </div>
-            `).join('');
+        if (lastDate && lastDate >= today) {
+            alert('Вы уже играли сегодня! Завтра новая попытка.');
+            return;
         }
         
-        if (isOwn) {
-            document.getElementById('editProfileBtn')?.addEventListener('click', () => {
-                document.getElementById('editProfileForm').classList.remove('hidden');
-            });
-            document.getElementById('saveProfileBtn')?.addEventListener('click', async () => {
-                const newName = document.getElementById('editName').value.trim();
-                if (newName && newName !== currentUser.name) {
-                    if (users.find(u => u.name === newName && u.id !== currentUser.uid)) {
-                        alert('Имя уже занято');
-                        return;
-                    }
-                    await updateUserProfile(currentUser.uid, { name: newName });
-                }
-                const newBio = document.getElementById('editBio').value.trim();
-                await updateUserProfile(currentUser.uid, { bio: newBio });
-                
-                const avatarFile = document.getElementById('editAvatar').files[0];
-                if (avatarFile) {
-                    const compressed = await compressImage(avatarFile, 400);
-                    if (compressed) await updateUserProfile(currentUser.uid, { avatar: compressed });
-                }
-                
-                document.getElementById('editProfileForm').classList.add('hidden');
-                alert('Профиль обновлён!');
-            });
-            document.getElementById('cancelEditBtn')?.addEventListener('click', () => {
-                document.getElementById('editProfileForm').classList.add('hidden');
-            });
-            document.getElementById('themeBtn')?.addEventListener('click', toggleTheme);
-            
-            document.getElementById('editAvatar')?.addEventListener('change', function(e) {
-                const fileName = e.target.files[0]?.name || '';
-                const display = document.getElementById('avatarFileNameDisplay');
-                if (display) display.textContent = fileName ? `📎 ${fileName.substring(0, 30)}${fileName.length > 30 ? '...' : ''}` : '';
-            });
-        }
+        const rolled = Math.floor(Math.random() * 16) - 5;
+        const newTotal = (stats?.totalPoints || 0) + rolled;
+        const newBest = Math.max(rolled, stats?.bestRoll || -5);
+        
+        await db.collection('gameStats').doc(currentUser.uid).set({
+            userId: currentUser.uid,
+            totalPoints: newTotal,
+            bestRoll: newBest,
+            lastAttemptDate: firebase.firestore.FieldValue.serverTimestamp(),
+            lastRollValue: rolled
+        });
+        
+        await loadData();
+        renderGameTab();
+        alert(rolled >= 0 ? `🎉 +${rolled} очков! Всего: ${newTotal}` : `😢 ${rolled} очков. Всего: ${newTotal}`);
     }
 
-    // Игра (рендер)
     async function renderGameTab() {
         const container = document.getElementById('gameContainer');
         const stats = gameStats.find(s => s.userId === currentUser.uid);
@@ -1001,38 +885,38 @@
                 <div class="game-header">
                     <div class="game-icon">🎲</div>
                     <div class="game-title">Пиписа бот</div>
-                    <div style="color:var(--text-secondary);font-size:13px;margin-top:8px;">Бросай кубик каждый день! от -5 до +10</div>
+                    <div style="color:var(--text-secondary);">Бросай кубик! от -5 до +10</div>
                 </div>
                 <div class="dice-container">
                     <div class="dice-value ${stats?.lastRollValue >= 0 ? 'positive' : 'negative'}">
                         ${stats?.lastRollValue !== undefined && !canPlay ? `${stats.lastRollValue >= 0 ? '+' : ''}${stats.lastRollValue}` : '🎲'}
                     </div>
                 </div>
-                <button id="rollButton" class="roll-button" ${!canPlay ? 'disabled' : ''}>
-                    ${canPlay ? '🎲 Бросить кубик!' : '⏰ Доступно завтра'}
-                </button>
+                <button id="rollButton" class="roll-button">${canPlay ? '🎲 Бросить кубик!' : '⏰ Завтра'}</button>
                 <div class="stats-grid">
-                    <div class="stat-card"><div class="stat-label">Всего очков</div><div class="stat-value">${stats?.totalPoints || 0}</div></div>
-                    <div class="stat-card"><div class="stat-label">Лучший бросок</div><div class="stat-value">${stats?.bestRoll >= 0 ? '+' : ''}${stats?.bestRoll || -5}</div></div>
+                    <div class="stat-card"><div class="stat-label">Всего очков</div><div class="stat-value" style="color:var(--accent);">${stats?.totalPoints || 0}</div></div>
+                    <div class="stat-card"><div class="stat-label">Лучший бросок</div><div class="stat-value" style="color:#ff9800;">${stats?.bestRoll >= 0 ? '+' : ''}${stats?.bestRoll || -5}</div></div>
                 </div>
             </div>
             <div id="leaderboardContainer"></div>
         `;
         
-        document.getElementById('rollButton')?.addEventListener('click', playGame);
+        if (canPlay) {
+            document.getElementById('rollButton')?.addEventListener('click', runGame);
+        } else {
+            document.getElementById('rollButton')?.setAttribute('disabled', 'disabled');
+        }
+        
         await renderLeaderboard();
     }
 
     async function renderLeaderboard() {
         const container = document.getElementById('leaderboardContainer');
-        if (!container) return;
-        
         const data = [...gameStats].sort((a,b) => b.totalPoints - a.totalPoints).slice(0,20);
         if (!data.length) {
             container.innerHTML = `<div class="leaderboard"><div class="leaderboard-header"><div class="leaderboard-title">🏆 Лидерборд</div></div><div style="text-align:center;padding:40px;color:var(--text-secondary);">Пока нет участников</div></div>`;
             return;
         }
-        
         const usersMap = new Map(users.map(u => [u.id, u]));
         container.innerHTML = `
             <div class="leaderboard">
@@ -1043,7 +927,7 @@
                         <div class="leaderboard-item" onclick="viewProfile('${item.userId}')">
                             <div class="leaderboard-rank ${idx===0?'rank-1':idx===1?'rank-2':idx===2?'rank-3':''}">${idx+1}</div>
                             <div class="leaderboard-name">${escapeHtml(user?.name || '?')}</div>
-                            <div class="leaderboard-score">${item.totalPoints}</div>
+                            <div class="leaderboard-score" style="color:var(--accent);font-weight:bold;">${item.totalPoints}</div>
                         </div>
                     `;
                 }).join('')}
@@ -1051,7 +935,60 @@
         `;
     }
 
-    // ========== АВТОРИЗАЦИЯ ==========
+    async function renderProfile() {
+        const container = document.getElementById('profileContainer');
+        const profileUser = users.find(u => u.id === viewingUserId);
+        if (!profileUser) return;
+        const isOwn = viewingUserId === currentUser.uid;
+        document.getElementById('backBtn').classList.toggle('hidden', isOwn);
+        const userPosts = posts.filter(p => p.userId === viewingUserId);
+        const userStats = gameStats.find(s => s.userId === viewingUserId) || { totalPoints: 0, bestRoll: -5 };
+        
+        container.innerHTML = `
+            <div class="profile-card">
+                <img src="${profileUser.avatar || 'https://via.placeholder.com/80?text=?'}" class="avatar">
+                <h3 style="color:var(--text-primary);">${escapeHtml(profileUser.name)}</h3>
+                <p style="color:var(--text-secondary);">${escapeHtml(profileUser.bio || 'Нет описания')}</p>
+                <div class="stats">
+                    <div><div class="stat-value">${userPosts.length}</div><div class="stat-label">посты</div></div>
+                    <div><div class="stat-value">${profileUser.followers?.length || 0}</div><div class="stat-label">подписчики</div></div>
+                    <div><div class="stat-value">${profileUser.following?.length || 0}</div><div class="stat-label">подписки</div></div>
+                </div>
+                <div class="stats">
+                    <div><div class="stat-value" style="color:var(--success);">${userStats.totalPoints}</div><div class="stat-label">очков</div></div>
+                    <div><div class="stat-value" style="color:#ff9800;">${userStats.bestRoll >= 0 ? '+' : ''}${userStats.bestRoll}</div><div class="stat-label">лучший бросок</div></div>
+                </div>
+                <div class="profile-buttons">
+                    ${!isOwn ? `<button onclick="alert('Подписки в разработке')">Подписаться</button>` : `<button id="editProfileBtn">✏️ Редактировать</button><button id="themeBtn">🌓 Тема</button>`}
+                </div>
+            </div>
+            <div class="profile-posts-title">📝 Посты</div>
+            <div id="profilePosts"></div>
+        `;
+        
+        const profilePosts = document.getElementById('profilePosts');
+        if (!userPosts.length) {
+            profilePosts.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:30px;">Нет постов</div>';
+        } else {
+            profilePosts.innerHTML = userPosts.map(post => `
+                <div class="post">
+                    <div class="post-text">${escapeHtml(post.text)}</div>
+                    ${post.photo ? `<img src="${post.photo}" class="post-photo">` : ''}
+                    <div class="post-footer"><div class="post-time-footer">${formatDate(post.date)}</div></div>
+                </div>
+            `).join('');
+        }
+        
+        if (isOwn) {
+            document.getElementById('editProfileBtn')?.addEventListener('click', () => alert('Редактирование в разработке'));
+            document.getElementById('themeBtn')?.addEventListener('click', () => {
+                document.body.classList.toggle('light-theme');
+                localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+            });
+        }
+    }
+
+    // Auth
     const authScreen = document.getElementById('authScreen');
     const mainApp = document.getElementById('mainApp');
     const submitBtn = document.getElementById('submitAuthBtn');
@@ -1134,31 +1071,7 @@
         renderProfile();
     };
 
-    window.toggleMenu = function(postId) {
-        if (openMenus[postId]) delete openMenus[postId];
-        else { openMenus = {}; openMenus[postId] = true; }
-        renderFeed();
-    };
-
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.post-menu')) {
-            openMenus = {};
-            renderFeed();
-        }
-    });
-
-    // Глобальные функции
-    window.viewProfile = (userId) => {
-        viewingUserId = userId;
-        renderProfile();
-        document.querySelector('.tab[data-tab="profile"]').click();
-    };
-    window.toggleLike = toggleLike;
-    window.deletePost = deletePost;
-    window.editPost = editPost;
-    window.toggleComments = toggleComments;
-
-    // ========== СОЗДАНИЕ ПОСТА ==========
+    // Пост модалка
     const modal = document.getElementById('postModal');
     const fabBtn = document.getElementById('fabBtn');
 
@@ -1166,53 +1079,32 @@
         modal.style.display = 'flex';
         document.getElementById('modalPostText').value = '';
         document.getElementById('modalPostPhoto').value = '';
-        const display = document.getElementById('fileNameDisplay');
-        if (display) display.textContent = '';
         document.getElementById('modalPostText').focus();
     };
-
     document.getElementById('modalCancelBtn').onclick = () => { modal.style.display = 'none'; };
     modal.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
 
     document.getElementById('modalPublishBtn').onclick = async () => {
         const text = document.getElementById('modalPostText').value.trim();
         if (!text) { alert('Напишите текст'); return; }
-        
         const file = document.getElementById('modalPostPhoto').files[0];
-        
         if (file) {
-            try {
-                document.getElementById('modalPublishBtn').textContent = 'Загрузка...';
-                document.getElementById('modalPublishBtn').disabled = true;
-                
-                if (file.size > 5 * 1024 * 1024) {
-                    alert('Файл большой, будет сжат...');
-                }
-                
-                const compressedImage = await compressImage(file, 900);
-                await savePost(text, compressedImage);
-                modal.style.display = 'none';
-            } catch (error) {
-                alert('Ошибка: ' + error.message);
-            } finally {
-                document.getElementById('modalPublishBtn').textContent = 'Опубликовать';
-                document.getElementById('modalPublishBtn').disabled = false;
-            }
+            const compressed = await compressImage(file);
+            await savePost(text, compressed);
         } else {
             await savePost(text, null);
-            modal.style.display = 'none';
         }
+        modal.style.display = 'none';
     };
 
-    document.getElementById('modalPostPhoto').addEventListener('change', function(e) {
+    document.getElementById('modalPostPhoto')?.addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (file) {
             const display = document.getElementById('fileNameDisplay');
-            if (display) display.textContent = `📎 ${file.name.substring(0, 40)}${file.name.length > 40 ? '...' : ''}`;
+            if (display) display.textContent = `📎 ${file.name}`;
         }
     });
 
-    // Табы
     document.querySelectorAll('.tab').forEach(tab => {
         tab.onclick = () => {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -1237,16 +1129,11 @@
         };
     });
 
-    function toggleTheme() {
-        document.body.classList.toggle('light-theme');
-        localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
-    }
-
     function initTheme() {
         if (localStorage.getItem('theme') === 'light') document.body.classList.add('light-theme');
     }
-
     initTheme();
+    
     auth.onAuthStateChanged(async (user) => {
         if (user) { currentUser = user; await loadData(); showMainApp(); }
     });
