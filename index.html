@@ -259,9 +259,10 @@
         .like-btn.liked { color: var(--like); }
         .post-time-footer { font-size: 11px; color: var(--text-secondary); }
 
-        /* КОММЕНТАРИИ - ПОЛНОСТЬЮ ПЕРЕПИСАНЫ */
+        /* КОММЕНТАРИИ - КРАСИВЫЕ И УДОБНЫЕ */
         .comments-wrapper { margin-top: 12px; }
-        .comments-list { margin-bottom: 10px; }
+        .comments-list { max-height: 300px; overflow-y: auto; margin-bottom: 10px; }
+        
         .comment {
             background: var(--comment-bg);
             border-radius: 16px;
@@ -290,27 +291,51 @@
             display: flex;
             gap: 8px;
             margin-top: 8px;
+            background: var(--bg-input);
+            border-radius: 30px;
+            padding: 4px;
         }
         .comment-form input {
             flex: 1;
-            padding: 12px;
+            padding: 12px 16px;
             border-radius: 30px;
-            background: var(--bg-input);
-            border: 1px solid var(--border);
+            background: transparent;
+            border: none;
             color: var(--text-primary);
-            font-size: 14px;
+            font-size: 15px;
+            outline: none;
+        }
+        .comment-form input:focus {
+            border: none;
+            outline: none;
         }
         .comment-form button {
             width: auto;
             padding: 8px 20px;
             border-radius: 30px;
             margin: 0;
+            background: var(--accent);
         }
         .no-comments {
             text-align: center;
             color: var(--text-secondary);
             padding: 12px;
             font-size: 13px;
+        }
+
+        /* Анимация для комментариев */
+        .comment-enter {
+            animation: fadeInUp 0.3s ease;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .profile-card {
@@ -421,8 +446,9 @@
             .content { padding: 8px; }
             .fab { width: 55px; height: 55px; font-size: 28px; }
             .post-actions { gap: 8px; }
-            .like-btn, .comment-toggle-btn { padding: 6px 10px; }
-            .comment-form button { padding: 8px 14px; }
+            .like-btn, .comment-toggle-btn { padding: 6px 10px; font-size: 13px; }
+            .comment-form input { font-size: 15px; padding: 10px 14px; }
+            .comment-form button { padding: 6px 16px; }
         }
     </style>
 </head>
@@ -523,41 +549,34 @@
         return str.replace(/[&<>]/g, (m) => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
     }
 
-    // ========== СЖАТИЕ ФОТО (5 МБ ДОПУСКАЕТСЯ) ==========
+    // Сжатие фото
     function compressImage(file, maxWidth = 900) {
         return new Promise((resolve, reject) => {
             if (!file.type.match(/image.*/)) {
                 resolve(null);
                 return;
             }
-            
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = function() {
                     let width = img.width;
                     let height = img.height;
-                    
                     if (width > maxWidth) {
                         height = (height * maxWidth) / width;
                         width = maxWidth;
                     }
-                    
                     const canvas = document.createElement('canvas');
                     canvas.width = width;
                     canvas.height = height;
-                    
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
-                    
                     let quality = 0.8;
                     let result = canvas.toDataURL('image/jpeg', quality);
-                    
                     while (result.length > 3.5 * 1024 * 1024 && quality > 0.5) {
                         quality -= 0.1;
                         result = canvas.toDataURL('image/jpeg', quality);
                     }
-                    
                     resolve(result);
                 };
                 img.onerror = reject;
@@ -577,7 +596,6 @@
         gameStats = statsSnapshot.docs.map(doc => ({ userId: doc.id, ...doc.data() }));
     }
 
-    // ========== ПОСТЫ ==========
     async function savePost(text, photoDataUrl) {
         await db.collection('posts').add({
             userId: currentUser.uid,
@@ -601,9 +619,12 @@
         renderFeed();
     }
 
-    // ========== КОММЕНТАРИИ - ПОЛНОСТЬЮ ПЕРЕПИСАНЫ ==========
+    // ========== КОММЕНТАРИИ (УДОБНЫЕ) ==========
     async function addComment(postId, commentText) {
-        if (!commentText || !commentText.trim()) return;
+        if (!commentText || !commentText.trim()) {
+            alert('Напишите комментарий');
+            return;
+        }
         
         const post = posts.find(p => p.id === postId);
         if (!post) return;
@@ -618,9 +639,15 @@
         await db.collection('posts').doc(postId).update({ comments });
         await loadData();
         
-        // Автоматически открываем комментарии после добавления
+        // Открываем и скроллим к комментариям
         openComments[postId] = true;
         renderFeed();
+        
+        // Прокрутка к последнему комментарию
+        setTimeout(() => {
+            const commentsDiv = document.querySelector(`#post-${postId} .comments-list`);
+            if (commentsDiv) commentsDiv.scrollTop = commentsDiv.scrollHeight;
+        }, 100);
     }
     
     async function deleteComment(postId, commentIndex) {
@@ -672,7 +699,7 @@
         renderFeed();
     }
 
-    // ========== ИГРА ==========
+    // Игра
     function rollNumber() { return Math.floor(Math.random() * 16) - 5; }
 
     async function playGame() {
@@ -720,7 +747,7 @@
             const comments = post.comments || [];
             
             return `
-                <div class="post" data-post-id="${post.id}">
+                <div class="post" id="post-${post.id}">
                     <div class="post-header">
                         <button class="post-author" onclick="viewProfile('${post.userId}')">${escapeHtml(author?.name || '?')}</button>
                         ${isAuthor ? `
@@ -740,7 +767,7 @@
                     <div class="post-footer">
                         <div class="post-actions">
                             <button class="like-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}', ${JSON.stringify(post).replace(/"/g, '&quot;')})">❤️ ${post.likes?.length || 0}</button>
-                            <button class="comment-toggle-btn" onclick="toggleCommentsSection('${post.id}')">💬 ${comments.length}</button>
+                            <button class="comment-toggle-btn" onclick="toggleComments('${post.id}')">💬 ${comments.length}</button>
                         </div>
                         <div class="post-time-footer">${formatDate(post.date)}</div>
                     </div>
@@ -758,7 +785,7 @@
                         <div class="no-comments">✨ Нет комментариев. Будь первым!</div>
                     </div>
                     <div class="comment-form">
-                        <input type="text" id="commentInput-${postId}" placeholder="Написать комментарий..." maxlength="500">
+                        <input type="text" id="comment-input-${postId}" placeholder="Написать комментарий..." autocomplete="off" enterkeyhint="send">
                         <button onclick="submitComment('${postId}')">→</button>
                     </div>
                 </div>
@@ -777,17 +804,17 @@
                                     <button class="comment-author" onclick="viewProfile('${comment.userId}')">${escapeHtml(commentAuthor?.name || '?')}</button>
                                     <span class="comment-date">${formatDate(comment.date)}</span>
                                 </div>
-                                <div class="comment-text" id="commentText-${postId}-${idx}">${escapeHtml(comment.text)}</div>
+                                <div class="comment-text" id="comment-text-${postId}-${idx}">${escapeHtml(comment.text)}</div>
                                 ${isCommentAuthor ? `
                                     <div style="display: flex; gap: 12px; margin-top: 6px;">
-                                        <button onclick="editCommentUI('${postId}', ${idx})" style="background:none; border:none; color:var(--text-secondary); font-size:11px; cursor:pointer;">✏️ Ред.</button>
-                                        <button onclick="deleteComment('${postId}', ${idx})" style="background:none; border:none; color:var(--text-secondary); font-size:11px; cursor:pointer;">🗑️ Удалить</button>
+                                        <button onclick="editCommentUI('${postId}', ${idx})" style="background:none; border:none; color:var(--accent); font-size:12px; cursor:pointer; opacity:0.7;">✏️ Редактировать</button>
+                                        <button onclick="deleteComment('${postId}', ${idx})" style="background:none; border:none; color:var(--accent); font-size:12px; cursor:pointer; opacity:0.7;">🗑️ Удалить</button>
                                     </div>
                                     <div id="editCommentForm-${postId}-${idx}" style="display:none; margin-top:8px;">
-                                        <input type="text" id="editCommentInput-${postId}-${idx}" value="${escapeHtml(comment.text)}" style="width:100%; padding:8px; border-radius:20px; background:var(--bg-input); border:1px solid var(--border); color:var(--text-primary);">
+                                        <input type="text" id="editCommentInput-${postId}-${idx}" value="${escapeHtml(comment.text)}" style="width:100%; padding:10px; border-radius:25px; background:var(--bg-input); border:1px solid var(--border); color:var(--text-primary); font-size:14px;">
                                         <div style="display:flex; gap:8px; margin-top:6px;">
-                                            <button onclick="saveCommentEdit('${postId}', ${idx})" style="width:auto; padding:6px 12px; font-size:12px;">Сохранить</button>
-                                            <button onclick="cancelCommentEdit('${postId}', ${idx})" style="width:auto; padding:6px 12px; font-size:12px;">Отмена</button>
+                                            <button onclick="saveCommentEdit('${postId}', ${idx})" style="width:auto; padding:6px 12px; background:var(--accent);">Сохранить</button>
+                                            <button onclick="cancelCommentEdit('${postId}', ${idx})" style="width:auto; padding:6px 12px; background:var(--bg-input);">Отмена</button>
                                         </div>
                                     </div>
                                 ` : ''}
@@ -796,32 +823,27 @@
                     }).join('')}
                 </div>
                 <div class="comment-form">
-                    <input type="text" id="commentInput-${postId}" placeholder="Написать комментарий..." maxlength="500">
+                    <input type="text" id="comment-input-${postId}" placeholder="Написать комментарий..." autocomplete="off" enterkeyhint="send">
                     <button onclick="submitComment('${postId}')">→</button>
                 </div>
             </div>
         `;
     }
     
-    function toggleCommentsSection(postId) {
-        openComments[postId] = !openComments[postId];
-        renderFeed();
-    }
-    
+    // Глобальные функции для комментариев
     window.submitComment = async function(postId) {
-        const input = document.getElementById(`commentInput-${postId}`);
+        const input = document.getElementById(`comment-input-${postId}`);
         const text = input?.value;
-        if (!text || !text.trim()) {
-            alert('Напишите комментарий');
-            return;
-        }
+        if (!text || !text.trim()) return;
         await addComment(postId, text);
         input.value = '';
+        // Фокусируем обратно на поле ввода после отправки
+        input.focus();
     };
     
     window.editCommentUI = function(postId, idx) {
         const form = document.getElementById(`editCommentForm-${postId}-${idx}`);
-        const textSpan = document.getElementById(`commentText-${postId}-${idx}`);
+        const textSpan = document.getElementById(`comment-text-${postId}-${idx}`);
         if (form) form.style.display = 'block';
         if (textSpan) textSpan.style.display = 'none';
     };
@@ -835,13 +857,36 @@
     
     window.cancelCommentEdit = function(postId, idx) {
         const form = document.getElementById(`editCommentForm-${postId}-${idx}`);
-        const textSpan = document.getElementById(`commentText-${postId}-${idx}`);
+        const textSpan = document.getElementById(`comment-text-${postId}-${idx}`);
         if (form) form.style.display = 'none';
         if (textSpan) textSpan.style.display = 'block';
     };
     
     window.deleteComment = deleteComment;
     
+    function toggleComments(postId) {
+        openComments[postId] = !openComments[postId];
+        renderFeed();
+        // Фокусируем поле ввода если открыли комментарии
+        if (openComments[postId]) {
+            setTimeout(() => {
+                const input = document.getElementById(`comment-input-${postId}`);
+                if (input) input.focus();
+            }, 100);
+        }
+    }
+    
+    // Обработка Enter на поле ввода комментария (через делегирование)
+    document.addEventListener('keypress', function(e) {
+        if (e.target && e.target.id && e.target.id.startsWith('comment-input-')) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const postId = e.target.id.replace('comment-input-', '');
+                window.submitComment(postId);
+            }
+        }
+    });
+
     // ========== ПРОФИЛЬ ==========
     async function renderProfile() {
         const container = document.getElementById('profileContainer');
@@ -856,7 +901,7 @@
         
         container.innerHTML = `
             <div class="profile-card">
-                <img class="avatar" src="${profileUser.avatar || 'https://via.placeholder.com/80?text=?'}" id="profileAvatar">
+                <img class="avatar" src="${profileUser.avatar || 'https://via.placeholder.com/80?text=?'}">
                 <h3 style="color:var(--text-primary);">${escapeHtml(profileUser.name)}</h3>
                 <p style="color:var(--text-secondary); font-size:13px; margin-top:6px;">${escapeHtml(profileUser.bio || 'Нет описания')}</p>
                 <div class="stats">
@@ -942,7 +987,7 @@
         }
     }
 
-    // ========== ИГРА (рендер) ==========
+    // Игра (рендер)
     async function renderGameTab() {
         const container = document.getElementById('gameContainer');
         const stats = gameStats.find(s => s.userId === currentUser.uid);
@@ -1089,7 +1134,6 @@
         renderProfile();
     };
 
-    // ========== МЕНЮ ТОЧЕК ==========
     window.toggleMenu = function(postId) {
         if (openMenus[postId]) delete openMenus[postId];
         else { openMenus = {}; openMenus[postId] = true; }
@@ -1103,7 +1147,7 @@
         }
     });
 
-    // ========== ГЛОБАЛЬНЫЕ ФУНКЦИИ ==========
+    // Глобальные функции
     window.viewProfile = (userId) => {
         viewingUserId = userId;
         renderProfile();
@@ -1112,7 +1156,7 @@
     window.toggleLike = toggleLike;
     window.deletePost = deletePost;
     window.editPost = editPost;
-    window.toggleCommentsSection = toggleCommentsSection;
+    window.toggleComments = toggleComments;
 
     // ========== СОЗДАНИЕ ПОСТА ==========
     const modal = document.getElementById('postModal');
@@ -1142,14 +1186,14 @@
                 document.getElementById('modalPublishBtn').disabled = true;
                 
                 if (file.size > 5 * 1024 * 1024) {
-                    alert('Файл слишком большой! Максимум 5 МБ. Фото будет сжато.');
+                    alert('Файл большой, будет сжат...');
                 }
                 
                 const compressedImage = await compressImage(file, 900);
                 await savePost(text, compressedImage);
                 modal.style.display = 'none';
             } catch (error) {
-                alert('Ошибка при загрузке фото: ' + error.message);
+                alert('Ошибка: ' + error.message);
             } finally {
                 document.getElementById('modalPublishBtn').textContent = 'Опубликовать';
                 document.getElementById('modalPublishBtn').disabled = false;
@@ -1162,16 +1206,13 @@
 
     document.getElementById('modalPostPhoto').addEventListener('change', function(e) {
         const file = e.target.files[0];
-        if (file) updateFileName(this);
+        if (file) {
+            const display = document.getElementById('fileNameDisplay');
+            if (display) display.textContent = `📎 ${file.name.substring(0, 40)}${file.name.length > 40 ? '...' : ''}`;
+        }
     });
 
-    function updateFileName(input) {
-        const fileName = input.files[0]?.name || '';
-        const display = document.getElementById('fileNameDisplay');
-        if (display) display.textContent = fileName ? `📎 ${fileName.substring(0, 40)}${fileName.length > 40 ? '...' : ''}` : '';
-    }
-
-    // ========== ТАБЫ ==========
+    // Табы
     document.querySelectorAll('.tab').forEach(tab => {
         tab.onclick = () => {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
