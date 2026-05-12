@@ -956,8 +956,8 @@
                                 <button class="menu-dots" onclick="event.stopPropagation(); toggleMenu('${post.id}')">⋮</button>
                                 ${showMenu ? `
                                     <div class="menu-dropdown">
-                                        <button onclick="editPost('${post.id}')">✏️ Редактировать</button>
-                                        <button onclick="deletePost('${post.id}')">🗑️ Удалить</button>
+                                        <button onclick="editPost('${post.id}')">Редактировать</button>
+                                        <button onclick="deletePost('${post.id}')">Удалить</button>
                                     </div>
                                 ` : ''}
                             </div>
@@ -1050,7 +1050,7 @@
                     ${!isOwn ? `
                         <button class="follow-btn" style="background:var(--bg-input);color:var(--accent);border:1px solid var(--accent);" onclick="alert('Подписки в разработке')">Подписаться</button>
                     ` : `
-                        <button id="editProfileBtn">✏️ Редактировать</button>
+                        <button id="editProfileBtn">Редактировать</button>
                         <button id="themeBtn">🌓 Тема</button>
                     `}
                 </div>
