@@ -415,7 +415,7 @@
         }
         .file-name { font-size: 12px; color: var(--accent); margin-top: 8px; display: block; text-align: center; }
 
-        .edit-form { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); text-align: left; }
+        .edit-form { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); text-align: left; display: none; }
         .profile-posts-title { font-size: 15px; font-weight: 600; margin: 16px 0 12px 0; color: var(--text-primary); }
         .back-btn { background: var(--bg-input); width: auto; padding: 8px 16px; border-radius: 30px; color: var(--text-primary); }
 
@@ -828,11 +828,15 @@
         return false;
     }
 
-    // ========== ФУНКЦИЯ ДЛЯ ОТКРЫТИЯ ФОРМЫ РЕДАКТИРОВАНИЯ ==========
-    window.openEditProfileForm = function() {
+    // ========== ГЛОБАЛЬНАЯ ФУНКЦИЯ ДЛЯ КНОПКИ РЕДАКТИРОВАНИЯ ==========
+    window.openEditForm = function() {
         const form = document.getElementById('editProfileForm');
         if (form) {
-            form.classList.toggle('hidden');
+            if (form.style.display === 'none' || form.style.display === '') {
+                form.style.display = 'block';
+            } else {
+                form.style.display = 'none';
+            }
         } else {
             console.log('Форма не найдена');
         }
@@ -964,12 +968,12 @@
                             ${profileUser.followers?.includes(currentUser.uid) ? '✓ Подписан' : '+ Подписаться'}
                         </button>
                     ` : `
-                        <button id="editProfileBtn" onclick="openEditProfileForm()">✏️ Редактировать</button>
+                        <button id="editProfileBtn" onclick="openEditForm()">✏️ Редактировать</button>
                         <button id="themeBtn">🌓 Тема</button>
                     `}
                 </div>
                 ${isOwn ? `
-                    <div id="editProfileForm" class="edit-form hidden">
+                    <div id="editProfileForm" class="edit-form" style="display: none;">
                         <input type="text" id="editName" placeholder="Имя" value="${escapeHtml(profileUser.name)}">
                         <textarea id="editBio" rows="2" placeholder="О себе">${escapeHtml(profileUser.bio || '')}</textarea>
                         <div class="upload-btn">
@@ -994,57 +998,43 @@
         }
         
         if (isOwn) {
-            // Обработчик сохранения
-            const saveBtn = document.getElementById('saveProfileBtn');
-            if (saveBtn) {
-                saveBtn.onclick = async () => {
-                    const newName = document.getElementById('editName').value.trim();
-                    const newBio = document.getElementById('editBio').value.trim();
-                    const avatarFile = document.getElementById('editAvatar').files[0];
-                    let avatarBase64 = null;
-                    
-                    if (avatarFile) {
-                        avatarBase64 = await compressImage(avatarFile, 400);
-                    }
-                    
-                    await updateUserProfile(newName, newBio, avatarBase64);
-                    document.getElementById('editProfileForm').classList.add('hidden');
-                    alert('✅ Профиль обновлён!');
-                };
-            }
+            // Сохранение
+            document.getElementById('saveProfileBtn')?.addEventListener('click', async () => {
+                const newName = document.getElementById('editName').value.trim();
+                const newBio = document.getElementById('editBio').value.trim();
+                const avatarFile = document.getElementById('editAvatar').files[0];
+                let avatarBase64 = null;
+                
+                if (avatarFile) {
+                    avatarBase64 = await compressImage(avatarFile, 400);
+                }
+                
+                await updateUserProfile(newName, newBio, avatarBase64);
+                document.getElementById('editProfileForm').style.display = 'none';
+                alert('✅ Профиль обновлён!');
+            });
             
-            // Обработчик отмены
-            const cancelBtn = document.getElementById('cancelEditBtn');
-            if (cancelBtn) {
-                cancelBtn.onclick = () => {
-                    document.getElementById('editProfileForm').classList.add('hidden');
-                };
-            }
+            // Отмена
+            document.getElementById('cancelEditBtn')?.addEventListener('click', () => {
+                document.getElementById('editProfileForm').style.display = 'none';
+            });
             
-            // Обработчик темы
-            const themeBtn = document.getElementById('themeBtn');
-            if (themeBtn) {
-                themeBtn.onclick = () => {
-                    document.body.classList.toggle('light-theme');
-                    localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
-                };
-            }
+            // Тема
+            document.getElementById('themeBtn')?.addEventListener('click', () => {
+                document.body.classList.toggle('light-theme');
+                localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+            });
             
-            // Показ имени файла аватара
-            const avatarInput = document.getElementById('editAvatar');
-            if (avatarInput) {
-                avatarInput.onchange = function(e) {
-                    const file = e.target.files[0];
-                    if (file) {
-                        const display = document.getElementById('avatarFileNameDisplay');
-                        if (display) display.textContent = `📎 ${file.name}`;
-                    }
-                };
-            }
+            // Показ имени файла
+            document.getElementById('editAvatar')?.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    document.getElementById('avatarFileNameDisplay').textContent = `📎 ${file.name}`;
+                }
+            });
         }
     }
 
-    // ========== ИГРА ==========
     async function runGame() {
         const stats = gameStats.find(s => s.userId === currentUser.uid);
         const lastDate = stats?.lastAttemptDate?.toDate ? stats.lastAttemptDate.toDate() : null;
