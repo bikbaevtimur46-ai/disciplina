@@ -74,6 +74,13 @@
             margin-bottom: 8px;
         }
 
+        .sub {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            font-size: 13px;
+        }
+
         input, textarea {
             width: 100%;
             padding: 14px;
@@ -279,7 +286,6 @@
         .like-btn.liked { color: var(--like); }
         .post-time-footer { font-size: 11px; color: var(--text-secondary); }
 
-        /* КОММЕНТАРИИ - ПРОСТЫЕ И РАБОЧИЕ */
         .comments-area {
             margin-top: 12px;
             border-top: 1px solid var(--border);
@@ -505,7 +511,6 @@
             flex-wrap: wrap; 
         }
 
-        /* Модальное окно редактирования профиля */
         .edit-profile-modal {
             display: none;
             position: fixed;
@@ -570,7 +575,6 @@
             margin-bottom: 8px;
         }
 
-        /* Модальное окно редактирования комментария */
         .edit-comment-modal {
             display: none;
             position: fixed;
@@ -818,7 +822,7 @@
 <div id="authScreen" class="auth-screen">
     <div class="auth-card">
         <h1>Дисциплина</h1>
-        <div class="sub" style="text-align:center;color:var(--text-secondary);margin-bottom:20px;">Делай каждый день</div>
+        <div id="randomSub" class="sub"></div>
         <div id="authForm">
             <input type="text" id="regName" placeholder="Имя">
             <input type="email" id="regEmail" placeholder="Email">
@@ -916,6 +920,24 @@
 </div>
 
 <script>
+    // ========== РАНДОМНАЯ ФРАЗА ==========
+    const phrases = [
+        "Делай каждый день",
+        "Бебебе",
+        "Гигамонстрящим пони вход запрещён",
+        "кремируйте ее быстрее",
+        "огурцы",
+        "типо как yo! только новый"
+    ];
+    
+    function setRandomPhrase() {
+        const randomIndex = Math.floor(Math.random() * phrases.length);
+        const subElement = document.getElementById('randomSub');
+        if (subElement) {
+            subElement.textContent = phrases[randomIndex];
+        }
+    }
+
     // ========== FIREBASE ==========
     const firebaseConfig = {
         apiKey: "AIzaSyAWk8l7q04m2keV5DoaMA4kIymf0ac9lQQ",
@@ -939,7 +961,6 @@
     let viewingUserId = null;
     let isLoginMode = false;
     
-    // Переменные для редактирования комментария
     let currentEditComment = {
         postId: null,
         commentIndex: null
@@ -1069,7 +1090,6 @@
         showNotification('🗑️ Комментарий удалён');
     }
     
-    // Функция для открытия модалки редактирования комментария
     function openEditCommentModal(postId, commentIndex, currentText) {
         currentEditComment = { postId, commentIndex };
         document.getElementById('editCommentText').value = currentText;
@@ -1153,13 +1173,11 @@
         if (Object.keys(updates).length > 0) {
             await db.collection('users').doc(currentUser.uid).update(updates);
             
-            // Обновляем локальные данные
             const userIndex = users.findIndex(u => u.id === currentUser.uid);
             if (userIndex !== -1) {
                 users[userIndex] = { ...users[userIndex], ...updates };
             }
             
-            // Обновляем текущего пользователя
             if (updates.name) currentUser.name = updates.name;
             if (updates.bio) currentUser.bio = updates.bio;
             if (updates.avatar) currentUser.avatar = updates.avatar;
@@ -1171,7 +1189,7 @@
         return false;
     }
 
-    // ========== РЕДАКТИРОВАНИЕ ПРОФИЛЯ (МОДАЛЬНОЕ ОКНО) ==========
+    // ========== РЕДАКТИРОВАНИЕ ПРОФИЛЯ ==========
     function openEditProfileModal() {
         const modal = document.getElementById('editProfileModal');
         const profileUser = users.find(u => u.id === currentUser.uid);
@@ -1242,7 +1260,6 @@
         }
     });
     
-    // Редактирование комментария - обработчики
     document.getElementById('saveCommentEditBtn')?.addEventListener('click', saveCommentEdit);
     document.getElementById('cancelCommentEditBtn')?.addEventListener('click', closeEditCommentModal);
     document.getElementById('editCommentModal')?.addEventListener('click', (e) => {
@@ -1251,7 +1268,7 @@
         }
     });
 
-    // ========== ФУНКЦИИ ДЛЯ НАСТРОЕК ==========
+    // ========== НАСТРОЙКИ ==========
     function openSettings() {
         const modal = document.getElementById('settingsModal');
         if (modal) modal.style.display = 'flex';
@@ -1525,7 +1542,6 @@
         await addComment(postId, text);
     };
     
-    // Сделаем функцию глобальной для вызова из onclick
     window.deleteComment = deleteComment;
     window.openEditCommentModal = openEditCommentModal;
     
@@ -1540,7 +1556,6 @@
         }
     }
     
-    // Обработка нажатия Enter для отправки комментария
     document.addEventListener('keypress', function(e) {
         if (e.target && e.target.id && e.target.id.startsWith('comment-input-')) {
             if (e.key === 'Enter') {
@@ -1813,6 +1828,9 @@
     function initTheme() {
         if (localStorage.getItem('theme') === 'light') document.body.classList.add('light-theme');
     }
+    
+    // Запуск
+    setRandomPhrase();
     initTheme();
     
     auth.onAuthStateChanged(async (user) => {
