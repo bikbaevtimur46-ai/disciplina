@@ -279,6 +279,7 @@
         .like-btn.liked { color: var(--like); }
         .post-time-footer { font-size: 11px; color: var(--text-secondary); }
 
+        /* КОММЕНТАРИИ - ПРОСТЫЕ И РАБОЧИЕ */
         .comments-area {
             margin-top: 12px;
             border-top: 1px solid var(--border);
@@ -337,9 +338,6 @@
             padding: 4px 8px;
             cursor: pointer;
             border-radius: 16px;
-        }
-        .comment-actions button:active {
-            background: var(--border);
         }
         .comment-input-area {
             display: flex;
@@ -570,6 +568,42 @@
             object-fit: cover;
             border: 2px solid var(--accent);
             margin-bottom: 8px;
+        }
+
+        /* Модальное окно редактирования комментария */
+        .edit-comment-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2001;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+        }
+        
+        .edit-comment-content {
+            background: var(--bg-card);
+            border-radius: 28px;
+            padding: 24px;
+            width: 90%;
+            max-width: 380px;
+            border: 1px solid var(--border);
+        }
+        
+        .edit-comment-content h3 {
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 22px;
+        }
+        
+        .edit-comment-content textarea {
+            margin-bottom: 15px;
+            min-height: 100px;
         }
 
         .upload-btn { 
@@ -869,6 +903,18 @@
     </div>
 </div>
 
+<!-- Модальное окно редактирования комментария -->
+<div id="editCommentModal" class="edit-comment-modal">
+    <div class="edit-comment-content">
+        <h3>✏️ Редактировать комментарий</h3>
+        <textarea id="editCommentText" rows="3" placeholder="Текст комментария"></textarea>
+        <div class="edit-buttons">
+            <button id="saveCommentEditBtn">Сохранить</button>
+            <button id="cancelCommentEditBtn" class="cancel-edit-btn">Отмена</button>
+        </div>
+    </div>
+</div>
+
 <script>
     // ========== FIREBASE ==========
     const firebaseConfig = {
@@ -892,6 +938,12 @@
     let openMenus = {};
     let viewingUserId = null;
     let isLoginMode = false;
+    
+    // Переменные для редактирования комментария
+    let currentEditComment = {
+        postId: null,
+        commentIndex: null
+    };
 
     function showNotification(message) {
         const notification = document.createElement('div');
@@ -1017,15 +1069,36 @@
         showNotification('🗑️ Комментарий удалён');
     }
     
-    async function editComment(postId, commentIndex, newText) {
-        if (!newText || !newText.trim()) return;
+    // Функция для открытия модалки редактирования комментария
+    function openEditCommentModal(postId, commentIndex, currentText) {
+        currentEditComment = { postId, commentIndex };
+        document.getElementById('editCommentText').value = currentText;
+        document.getElementById('editCommentModal').style.display = 'flex';
+    }
+    
+    async function saveCommentEdit() {
+        const { postId, commentIndex } = currentEditComment;
+        const newText = document.getElementById('editCommentText').value.trim();
+        
+        if (!newText) {
+            showNotification('❌ Текст комментария не может быть пустым');
+            return;
+        }
+        
         const post = posts.find(p => p.id === postId);
         if (!post || !post.comments || !post.comments[commentIndex]) return;
-        post.comments[commentIndex].text = newText.trim();
+        
+        post.comments[commentIndex].text = newText;
         await db.collection('posts').doc(postId).update({ comments: post.comments });
         await loadData();
         await refreshAll();
         showNotification('✏️ Комментарий обновлён');
+        closeEditCommentModal();
+    }
+    
+    function closeEditCommentModal() {
+        document.getElementById('editCommentModal').style.display = 'none';
+        currentEditComment = { postId: null, commentIndex: null };
     }
 
     async function deletePost(postId) {
@@ -1104,7 +1177,6 @@
         const profileUser = users.find(u => u.id === currentUser.uid);
         if (!profileUser) return;
         
-        // Заполняем форму текущими данными
         document.getElementById('editProfileName').value = profileUser.name || '';
         document.getElementById('editProfileBio').value = profileUser.bio || '';
         const preview = document.getElementById('editAvatarPreview');
@@ -1123,7 +1195,6 @@
         document.getElementById('editProfileModal').style.display = 'none';
     }
     
-    // Предпросмотр аватара в модалке
     document.getElementById('editProfileAvatar')?.addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (file) {
@@ -1136,7 +1207,6 @@
         }
     });
     
-    // Сохранение профиля
     document.getElementById('saveProfileEditBtn')?.addEventListener('click', async () => {
         const saveBtn = document.getElementById('saveProfileEditBtn');
         const originalText = saveBtn.textContent;
@@ -1166,11 +1236,18 @@
     });
     
     document.getElementById('cancelProfileEditBtn')?.addEventListener('click', closeEditProfileModal);
-    
-    // Закрытие по клику на фон
     document.getElementById('editProfileModal')?.addEventListener('click', (e) => {
         if (e.target === document.getElementById('editProfileModal')) {
             closeEditProfileModal();
+        }
+    });
+    
+    // Редактирование комментария - обработчики
+    document.getElementById('saveCommentEditBtn')?.addEventListener('click', saveCommentEdit);
+    document.getElementById('cancelCommentEditBtn')?.addEventListener('click', closeEditCommentModal);
+    document.getElementById('editCommentModal')?.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('editCommentModal')) {
+            closeEditCommentModal();
         }
     });
 
@@ -1244,9 +1321,20 @@
     }
 
     function renderCommentsSection(postId, comments) {
+        if (!comments || comments.length === 0) {
+            return `
+                <div class="comments-area">
+                    <div class="no-comments-text">✨ Нет комментариев</div>
+                    <div class="comment-input-area">
+                        <input type="text" id="comment-input-${postId}" placeholder="Написать комментарий..." autocomplete="off">
+                        <button onclick="submitComment('${postId}')">→</button>
+                    </div>
+                </div>
+            `;
+        }
+        
         return `
-            <div class="comments-area" id="comments-panel-${postId}">
-                ${comments.length === 0 ? '<div class="no-comments-text">✨ Нет комментариев</div>' : ''}
+            <div class="comments-area">
                 ${comments.map((c, idx) => {
                     const commentAuthor = users.find(u => u.id === c.userId);
                     const isCommentOwner = c.userId === currentUser.uid;
@@ -1257,25 +1345,18 @@
                                 <button class="comment-author" onclick="viewProfile('${c.userId}')">${escapeHtml(commentAuthor?.name || '?')}</button>
                                 <span class="comment-date">${formatDate(c.date)}</span>
                             </div>
-                            <div class="comment-text" id="comment-text-${postId}-${idx}">${escapeHtml(c.text)}</div>
+                            <div class="comment-text">${escapeHtml(c.text)}</div>
                             ${isCommentOwner ? `
                                 <div class="comment-actions">
-                                    <button onclick="editCommentUI('${postId}', ${idx})">✏️ Редактировать</button>
+                                    <button onclick="openEditCommentModal('${postId}', ${idx}, '${escapeHtml(c.text).replace(/'/g, "\\'")}')">✏️ Редактировать</button>
                                     <button onclick="deleteComment('${postId}', ${idx})">🗑️ Удалить</button>
-                                </div>
-                                <div id="editCommentForm-${postId}-${idx}" style="display: none; margin-top: 8px;">
-                                    <input type="text" id="editCommentInput-${postId}-${idx}" value="${escapeHtml(c.text)}" style="width:100%; padding:8px; border-radius:25px; background:var(--bg-input); border:1px solid var(--border); color:var(--text-primary);">
-                                    <div style="display: flex; gap: 8px; margin-top: 6px;">
-                                        <button onclick="saveCommentEdit('${postId}', ${idx})" style="width: auto; padding: 6px 12px;">Сохранить</button>
-                                        <button onclick="cancelCommentEdit('${postId}', ${idx})" style="width: auto; padding: 6px 12px; background: var(--bg-input);">Отмена</button>
-                                    </div>
                                 </div>
                             ` : ''}
                         </div>
                     `;
                 }).join('')}
                 <div class="comment-input-area">
-                    <input type="text" id="comment-input-${postId}" placeholder="Написать комментарий..." autocomplete="off" enterkeyhint="send">
+                    <input type="text" id="comment-input-${postId}" placeholder="Написать комментарий..." autocomplete="off">
                     <button onclick="submitComment('${postId}')">→</button>
                 </div>
             </div>
@@ -1442,34 +1523,11 @@
         const text = input?.value;
         if (!text || !text.trim()) return;
         await addComment(postId, text);
-        setTimeout(() => {
-            if (input) input.focus();
-        }, 50);
     };
     
-    window.editCommentUI = function(postId, idx) {
-        const form = document.getElementById(`editCommentForm-${postId}-${idx}`);
-        const textSpan = document.getElementById(`comment-text-${postId}-${idx}`);
-        if (form) form.style.display = 'block';
-        if (textSpan) textSpan.style.display = 'none';
-    };
-    
-    window.saveCommentEdit = async function(postId, idx) {
-        const input = document.getElementById(`editCommentInput-${postId}-${idx}`);
-        const newText = input?.value;
-        if (!newText || !newText.trim()) return;
-        await editComment(postId, idx, newText);
-        await refreshAll();
-    };
-    
-    window.cancelCommentEdit = function(postId, idx) {
-        const form = document.getElementById(`editCommentForm-${postId}-${idx}`);
-        const textSpan = document.getElementById(`comment-text-${postId}-${idx}`);
-        if (form) form.style.display = 'none';
-        if (textSpan) textSpan.style.display = 'block';
-    };
-    
+    // Сделаем функцию глобальной для вызова из onclick
     window.deleteComment = deleteComment;
+    window.openEditCommentModal = openEditCommentModal;
     
     function toggleComments(postId) {
         openComments[postId] = !openComments[postId];
@@ -1482,12 +1540,14 @@
         }
     }
     
+    // Обработка нажатия Enter для отправки комментария
     document.addEventListener('keypress', function(e) {
         if (e.target && e.target.id && e.target.id.startsWith('comment-input-')) {
             if (e.key === 'Enter') {
                 e.preventDefault();
                 const postId = e.target.id.replace('comment-input-', '');
                 submitComment(postId);
+                e.target.value = '';
             }
         }
     });
@@ -1513,6 +1573,7 @@
     
     window.toggleFollow = toggleFollow;
     window.toggleLike = toggleLike;
+    window.toggleComments = toggleComments;
 
     // ========== МОДАЛЬНОЕ ОКНО НАСТРОЕК ==========
     const settingsModal = document.createElement('div');
