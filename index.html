@@ -384,7 +384,6 @@
             padding: 12px;
         }
 
-        /* ПРОФИЛЬ С ШЕСТЕРЁНКОЙ */
         .profile-card {
             background: var(--bg-card);
             border-radius: 20px;
@@ -424,7 +423,6 @@
             color: var(--text-secondary); 
         }
         
-        /* Кнопка шестерёнки */
         .settings-btn {
             position: absolute;
             top: 15px;
@@ -447,7 +445,6 @@
             transform: none;
         }
         
-        /* Модальное окно настроек */
         .settings-modal {
             display: none;
             position: fixed;
@@ -697,6 +694,26 @@
             text-align: center;
         }
 
+        .notification {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--success);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            z-index: 10000;
+            animation: fadeInOut 2s ease;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+        }
+
         @media (max-width: 500px) {
             .content { padding: 8px; }
             .fab { width: 55px; height: 55px; font-size: 28px; }
@@ -804,6 +821,14 @@
     let openMenus = {};
     let viewingUserId = null;
     let isLoginMode = false;
+
+    function showNotification(message) {
+        const notification = document.createElement('div');
+        notification.className = 'notification';
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 2000);
+    }
 
     function formatDate(date) {
         if (!date) return 'только что';
@@ -918,6 +943,7 @@
         await db.collection('posts').doc(postId).update({ comments: post.comments });
         await loadData();
         await refreshAll();
+        showNotification('🗑️ Комментарий удалён');
     }
     
     async function editComment(postId, commentIndex, newText) {
@@ -928,6 +954,7 @@
         await db.collection('posts').doc(postId).update({ comments: post.comments });
         await loadData();
         await refreshAll();
+        showNotification('✏️ Комментарий обновлён');
     }
 
     async function deletePost(postId) {
@@ -935,6 +962,7 @@
             await db.collection('posts').doc(postId).delete();
             await loadData();
             await refreshAll();
+            showNotification('Пост удалён');
         }
     }
 
@@ -945,6 +973,7 @@
             await db.collection('posts').doc(postId).update({ text: newText.trim() });
             await loadData();
             await refreshAll();
+            showNotification('Пост обновлён');
         }
     }
 
@@ -976,8 +1005,17 @@
         if (newName && newName !== currentUser.name) updates.name = newName;
         if (newBio !== undefined) updates.bio = newBio;
         if (newAvatar) updates.avatar = newAvatar;
+        
         if (Object.keys(updates).length > 0) {
             await db.collection('users').doc(currentUser.uid).update(updates);
+            
+            // Обновляем текущего пользователя в локальном массиве
+            const updatedUser = await db.collection('users').doc(currentUser.uid).get();
+            const userIndex = users.findIndex(u => u.id === currentUser.uid);
+            if (userIndex !== -1) {
+                users[userIndex] = { id: currentUser.uid, ...updatedUser.data() };
+            }
+            
             await loadData();
             await refreshAll();
             return true;
@@ -1181,22 +1219,34 @@
         }
         
         if (isOwn) {
-            // Сохранение
+            // Сохранение профиля
             const saveBtn = document.getElementById('saveProfileBtn');
             if (saveBtn) {
                 saveBtn.onclick = async () => {
-                    const newName = document.getElementById('editName').value.trim();
-                    const newBio = document.getElementById('editBio').value.trim();
-                    const avatarFile = document.getElementById('editAvatar').files[0];
-                    let avatarBase64 = null;
+                    const originalText = saveBtn.textContent;
+                    saveBtn.disabled = true;
+                    saveBtn.textContent = 'Сохранение...';
                     
-                    if (avatarFile) {
-                        avatarBase64 = await compressImage(avatarFile, 400);
+                    try {
+                        const newName = document.getElementById('editName').value.trim();
+                        const newBio = document.getElementById('editBio').value.trim();
+                        const avatarFile = document.getElementById('editAvatar').files[0];
+                        let avatarBase64 = null;
+                        
+                        if (avatarFile) {
+                            avatarBase64 = await compressImage(avatarFile, 400);
+                        }
+                        
+                        await updateUserProfile(newName, newBio, avatarBase64);
+                        document.getElementById('editProfileForm').style.display = 'none';
+                        showNotification('✅ Профиль обновлён!');
+                    } catch (error) {
+                        console.error('Error saving profile:', error);
+                        showNotification('❌ Ошибка при сохранении');
+                    } finally {
+                        saveBtn.disabled = false;
+                        saveBtn.textContent = originalText;
                     }
-                    
-                    await updateUserProfile(newName, newBio, avatarBase64);
-                    document.getElementById('editProfileForm').style.display = 'none';
-                    alert('✅ Профиль обновлён!');
                 };
             }
             
@@ -1229,7 +1279,7 @@
         today.setHours(0, 0, 0, 0);
         
         if (lastDate && lastDate >= today) {
-            alert('Вы уже играли сегодня! Завтра новая попытка.');
+            showNotification('Вы уже играли сегодня! Завтра новая попытка.');
             return;
         }
         
@@ -1247,7 +1297,7 @@
         
         await loadData();
         renderGameTab();
-        alert(rolled >= 0 ? `🎉 +${rolled} очков! Всего: ${newTotal}` : `😢 ${rolled} очков. Всего: ${newTotal}`);
+        showNotification(rolled >= 0 ? `🎉 +${rolled} очков! Всего: ${newTotal}` : `😢 ${rolled} очков. Всего: ${newTotal}`);
     }
 
     async function renderGameTab() {
@@ -1280,9 +1330,11 @@
         `;
         
         if (canPlay) {
-            document.getElementById('rollButton')?.addEventListener('click', runGame);
+            const rollBtn = document.getElementById('rollButton');
+            if (rollBtn) rollBtn.addEventListener('click', runGame);
         } else {
-            document.getElementById('rollButton')?.setAttribute('disabled', 'disabled');
+            const rollBtn = document.getElementById('rollButton');
+            if (rollBtn) rollBtn.setAttribute('disabled', 'disabled');
         }
         await renderLeaderboard();
     }
@@ -1318,7 +1370,7 @@
         if (!text || !text.trim()) return;
         await addComment(postId, text);
         setTimeout(() => {
-            input.focus();
+            if (input) input.focus();
         }, 50);
     };
     
@@ -1334,6 +1386,7 @@
         const newText = input?.value;
         if (!newText || !newText.trim()) return;
         await editComment(postId, idx, newText);
+        await refreshAll();
     };
     
     window.cancelCommentEdit = function(postId, idx) {
@@ -1577,6 +1630,7 @@
             await savePost(text, null);
         }
         modal.style.display = 'none';
+        showNotification('Пост опубликован!');
     };
 
     document.getElementById('modalPostPhoto')?.addEventListener('change', function(e) {
