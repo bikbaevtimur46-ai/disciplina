@@ -32,6 +32,7 @@
             --comment-bg: #0d1119;
             --comment-hover: #151b26;
             --success: #4caf50;
+            --admin-gold: #FFD700;
         }
 
         body.light-theme {
@@ -50,6 +51,66 @@
         }
 
         body { background: var(--bg-primary); }
+
+        /* Галочка верификации */
+        .verified-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(135deg, #1DA1F2, #0D8BD9);
+            color: white;
+            border-radius: 50%;
+            font-size: 11px;
+            margin-left: 5px;
+            vertical-align: middle;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .verified-badge::before {
+            content: "✓";
+        }
+
+        .verified-badge:hover {
+            transform: scale(1.1);
+            transition: transform 0.2s;
+        }
+
+        /* Золотая галочка для админа */
+        .admin-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #8B4513;
+            border-radius: 50%;
+            font-size: 11px;
+            margin-left: 5px;
+            vertical-align: middle;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .admin-badge::before {
+            content: "★";
+        }
+
+        /* Кнопка выдачи галочки */
+        .verify-user-btn {
+            background: linear-gradient(135deg, #1DA1F2, #0D8BD9);
+            color: white;
+            border: none;
+        }
+
+        .verify-user-btn.unverify {
+            background: var(--bg-input);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
 
         .auth-screen {
             min-height: 100vh;
@@ -224,6 +285,9 @@
             border: none;
             padding: 0;
             text-align: left;
+            display: inline-flex;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
         .post-menu {
@@ -327,6 +391,9 @@
             background: none;
             border: none;
             padding: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
         .comment-date {
             font-size: 10px;
@@ -482,7 +549,6 @@
             margin: 16px 0;
         }
         
-        /* Все кнопки в настройках - единый стиль */
         .settings-item button {
             width: 100%;
             padding: 14px;
@@ -500,6 +566,13 @@
             transform: scale(0.98);
         }
 
+        /* Специальная кнопка для получения статуса админа */
+        .get-admin-btn {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #8B4513;
+            border: none;
+        }
+
         .profile-buttons { 
             display: flex; 
             gap: 10px; 
@@ -508,7 +581,6 @@
             flex-wrap: wrap; 
         }
 
-        /* Модальное окно редактирования профиля */
         .edit-profile-modal {
             display: none;
             position: fixed;
@@ -573,7 +645,6 @@
             margin-bottom: 8px;
         }
 
-        /* Модальное окно редактирования поста */
         .edit-post-modal {
             display: none;
             position: fixed;
@@ -609,7 +680,6 @@
             min-height: 120px;
         }
 
-        /* Модальное окно редактирования комментария */
         .edit-comment-modal {
             display: none;
             position: fixed;
@@ -643,6 +713,54 @@
         .edit-comment-content textarea {
             margin-bottom: 15px;
             min-height: 100px;
+        }
+
+        /* Модальное окно для ввода кода администратора */
+        .admin-code-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2003;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+        }
+        
+        .admin-code-content {
+            background: var(--bg-card);
+            border-radius: 28px;
+            padding: 24px;
+            width: 90%;
+            max-width: 350px;
+            border: 1px solid var(--border);
+        }
+        
+        .admin-code-content h3 {
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 22px;
+        }
+        
+        .admin-code-content input {
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 18px;
+            letter-spacing: 2px;
+        }
+        
+        .admin-code-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .admin-code-buttons button {
+            flex: 1;
         }
 
         .upload-btn { 
@@ -942,6 +1060,19 @@
     </div>
 </div>
 
+<!-- Модальное окно для ввода кода администратора -->
+<div id="adminCodeModal" class="admin-code-modal">
+    <div class="admin-code-content">
+        <h3>⭐ Стать администратором</h3>
+        <input type="password" id="adminCodeInput" placeholder="Введите секретный код" maxlength="20">
+        <div id="adminCodeError" style="color: var(--accent); font-size: 12px; text-align: center; margin-bottom: 10px;"></div>
+        <div class="admin-code-buttons">
+            <button id="submitAdminCodeBtn">Подтвердить</button>
+            <button id="cancelAdminCodeBtn" class="cancel-edit-btn">Отмена</button>
+        </div>
+    </div>
+</div>
+
 <!-- Модальное окно редактирования поста -->
 <div id="editPostModal" class="edit-post-modal">
     <div class="edit-post-content">
@@ -983,6 +1114,85 @@
         if (subElement) {
             subElement.textContent = phrases[randomIndex];
         }
+    }
+
+    // ========== АДМИНИСТРИРОВАНИЕ ==========
+    const ADMIN_SECRET_CODE = "7G#v2!kP$mQ9";  // 
+    
+    // Проверка, является ли пользователь администратором
+    function isAdmin() {
+        return currentUser && currentUser.isAdmin === true;
+    }
+    
+    // Получить статус админа из Firestore
+    async function loadAdminStatus() {
+        if (!currentUser) return false;
+        const userDoc = await db.collection('users').doc(currentUser.uid).get();
+        const isAdminFlag = userDoc.data()?.isAdmin === true;
+        currentUser.isAdmin = isAdminFlag;
+        return isAdminFlag;
+    }
+    
+    // Открыть модальное окно для ввода кода
+    function openAdminCodeModal() {
+        document.getElementById('adminCodeModal').style.display = 'flex';
+        document.getElementById('adminCodeInput').value = '';
+        document.getElementById('adminCodeError').textContent = '';
+    }
+    
+    function closeAdminCodeModal() {
+        document.getElementById('adminCodeModal').style.display = 'none';
+    }
+    
+    // Проверка кода и выдача статуса администратора
+    async function checkAdminCode() {
+        const enteredCode = document.getElementById('adminCodeInput').value.trim();
+        const errorDiv = document.getElementById('adminCodeError');
+        
+        if (!enteredCode) {
+            errorDiv.textContent = 'Введите код';
+            return;
+        }
+        
+        if (enteredCode === ADMIN_SECRET_CODE) {
+            // Сохраняем статус администратора в Firestore
+            await db.collection('users').doc(currentUser.uid).update({
+                isAdmin: true
+            });
+            
+            // Обновляем локальные данные
+            currentUser.isAdmin = true;
+            const userIndex = users.findIndex(u => u.id === currentUser.uid);
+            if (userIndex !== -1) {
+                users[userIndex].isAdmin = true;
+            }
+            
+            closeAdminCodeModal();
+            showNotification('✅ Поздравляем! Вы теперь администратор!');
+            await refreshAll();
+        } else {
+            errorDiv.textContent = '❌ Неверный код';
+        }
+    }
+    
+    // Выдать/забрать верификацию (только для админа)
+    async function toggleVerification(targetUserId) {
+        if (!isAdmin()) {
+            showNotification('❌ Только администратор может выдавать галочки');
+            return;
+        }
+        
+        const userRef = db.collection('users').doc(targetUserId);
+        const userDoc = await userRef.get();
+        const isCurrentlyVerified = userDoc.data()?.verified === true;
+        
+        await userRef.update({
+            verified: !isCurrentlyVerified
+        });
+        
+        showNotification(isCurrentlyVerified ? '⭐ Галочка убрана' : '✅ Галочка выдана!');
+        await loadData();
+        await refreshAll();
     }
 
     // ========== FIREBASE ==========
@@ -1083,6 +1293,14 @@
         posts = postsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         const statsSnapshot = await db.collection('gameStats').get();
         gameStats = statsSnapshot.docs.map(doc => ({ userId: doc.id, ...doc.data() }));
+        
+        // Загружаем статус админа для текущего пользователя
+        if (currentUser) {
+            const userDoc = users.find(u => u.id === currentUser.uid);
+            if (userDoc) {
+                currentUser.isAdmin = userDoc.isAdmin === true;
+            }
+        }
     }
 
     async function savePost(text, photoDataUrl) {
@@ -1179,7 +1397,6 @@
         }
     }
 
-    // Функции для редактирования поста через модальное окно
     function openEditPostModal(postId, currentText) {
         currentEditPostId = postId;
         document.getElementById('editPostText').value = currentText;
@@ -1329,7 +1546,6 @@
         }
     });
     
-    // Обработчики для редактирования поста
     document.getElementById('savePostEditBtn')?.addEventListener('click', savePostEdit);
     document.getElementById('cancelPostEditBtn')?.addEventListener('click', closeEditPostModal);
     document.getElementById('editPostModal')?.addEventListener('click', (e) => {
@@ -1343,6 +1559,22 @@
     document.getElementById('editCommentModal')?.addEventListener('click', (e) => {
         if (e.target === document.getElementById('editCommentModal')) {
             closeEditCommentModal();
+        }
+    });
+    
+    // Обработчики для модалки админа
+    document.getElementById('submitAdminCodeBtn')?.addEventListener('click', checkAdminCode);
+    document.getElementById('cancelAdminCodeBtn')?.addEventListener('click', closeAdminCodeModal);
+    document.getElementById('adminCodeModal')?.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('adminCodeModal')) {
+            closeAdminCodeModal();
+        }
+    });
+    
+    // Enter в поле ввода кода
+    document.getElementById('adminCodeInput')?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            checkAdminCode();
         }
     });
 
@@ -1387,7 +1619,11 @@
                 <div class="post-header">
                     <img class="post-avatar" src="${author?.avatar || 'https://via.placeholder.com/36'}" onclick="viewProfile('${post.userId}')">
                     <div class="post-author-info">
-                        <button class="post-author" onclick="viewProfile('${post.userId}')">${escapeHtml(author?.name || '?')}</button>
+                        <button class="post-author" onclick="viewProfile('${post.userId}')">
+                            ${escapeHtml(author?.name || '?')}
+                            ${author?.verified ? '<span class="verified-badge" title="Верифицированный аккаунт"></span>' : ''}
+                            ${author?.isAdmin ? '<span class="admin-badge" title="Администратор"></span>' : ''}
+                        </button>
                     </div>
                     ${isAuthor ? `
                         <div class="post-menu">
@@ -1437,7 +1673,11 @@
                         <div class="comment-item" id="comment-${postId}-${idx}">
                             <div class="comment-item-header">
                                 <img class="comment-avatar" src="${commentAuthor?.avatar || 'https://via.placeholder.com/28'}" onclick="viewProfile('${c.userId}')">
-                                <button class="comment-author" onclick="viewProfile('${c.userId}')">${escapeHtml(commentAuthor?.name || '?')}</button>
+                                <button class="comment-author" onclick="viewProfile('${c.userId}')">
+                                    ${escapeHtml(commentAuthor?.name || '?')}
+                                    ${commentAuthor?.verified ? '<span class="verified-badge" title="Верифицированный аккаунт"></span>' : ''}
+                                    ${commentAuthor?.isAdmin ? '<span class="admin-badge" title="Администратор"></span>' : ''}
+                                </button>
                                 <span class="comment-date">${formatDate(c.date)}</span>
                             </div>
                             <div class="comment-text">${escapeHtml(c.text)}</div>
@@ -1479,6 +1719,7 @@
         if (!profileUser) return;
         
         const isOwn = viewingUserId === currentUser.uid;
+        const isAdminUser = isAdmin();
         document.getElementById('backBtn').classList.toggle('hidden', isOwn);
         
         const userPosts = posts.filter(p => p.userId === viewingUserId);
@@ -1501,6 +1742,11 @@
                 </div>
                 <div class="profile-buttons">
                     ${!isOwn ? `
+                        ${isAdminUser ? `
+                            <button id="verifyUserBtn" class="verify-user-btn ${profileUser?.verified ? 'unverify' : ''}" onclick="toggleVerification('${viewingUserId}')">
+                                ${profileUser?.verified ? '🔹 Забрать галочку' : '⭐ Выдать галочку'}
+                            </button>
+                        ` : ''}
                         <button class="follow-btn ${profileUser.followers?.includes(currentUser.uid) ? 'following' : ''}" onclick="toggleFollow('${viewingUserId}')">
                             ${profileUser.followers?.includes(currentUser.uid) ? '✓ Подписан' : '+ Подписаться'}
                         </button>
@@ -1508,6 +1754,16 @@
                         <button id="editProfileBtn" onclick="openEditProfileModal()">✏️ Редактировать</button>
                     `}
                 </div>
+                ${isOwn && !isAdminUser ? `
+                    <div class="profile-buttons" style="margin-top: 8px;">
+                        <button id="getAdminBtn" class="get-admin-btn" onclick="openAdminCodeModal()">⭐ Стать администратором</button>
+                    </div>
+                ` : ''}
+                ${isOwn && isAdminUser ? `
+                    <div class="profile-buttons" style="margin-top: 8px;">
+                        <div style="font-size: 12px; color: var(--admin-gold);">★ Вы администратор ★</div>
+                    </div>
+                ` : ''}
             </div>
             <div class="profile-posts-title">📝 Посты</div>
             <div id="profilePosts"></div>
@@ -1667,6 +1923,7 @@
     window.toggleFollow = toggleFollow;
     window.toggleLike = toggleLike;
     window.toggleComments = toggleComments;
+    window.toggleVerification = toggleVerification;
 
     // ========== МОДАЛЬНОЕ ОКНО НАСТРОЕК ==========
     const settingsModal = document.createElement('div');
@@ -1808,12 +2065,13 @@
                 if (!name) { authError.textContent = 'Введите имя'; return; }
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 await db.collection('users').doc(userCredential.user.uid).set({
-                    name, email, bio: '', avatar: null, followers: [], following: []
+                    name, email, bio: '', avatar: null, followers: [], following: [], isAdmin: false, verified: false
                 });
                 await db.collection('gameStats').doc(userCredential.user.uid).set({
                     userId: userCredential.user.uid, totalPoints: 0, bestRoll: -5, lastAttemptDate: null, lastRollValue: null
                 });
                 currentUser = userCredential.user;
+                currentUser.isAdmin = false;
                 await loadData();
                 showMainApp();
             } else {
@@ -1827,6 +2085,7 @@
 
     async function showMainApp() {
         viewingUserId = currentUser.uid;
+        await loadAdminStatus();
         authScreen.style.display = 'none';
         mainApp.style.display = 'block';
         await refreshAll();
@@ -1912,7 +2171,7 @@
     initTheme();
     
     auth.onAuthStateChanged(async (user) => {
-        if (user) { currentUser = user; await loadData(); showMainApp(); }
+        if (user) { currentUser = user; await loadData(); await loadAdminStatus(); showMainApp(); }
     });
 </script>
 </body>
