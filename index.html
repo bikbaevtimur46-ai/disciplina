@@ -30,6 +30,7 @@
             --border: #252c38;
             --like: #ff3b5c;
             --comment-bg: #0d1119;
+            --comment-hover: #151b26;
             --success: #4caf50;
         }
 
@@ -41,7 +42,9 @@
             --text-primary: #1a1f2e;
             --text-secondary: #5a6278;
             --accent: #ff5722;
+            --accent-hover: #ff7043;
             --border: #e2e6ed;
+            --like: #ff3b5c;
             --comment-bg: #f8f9fc;
             --comment-hover: #f0f2f6;
         }
@@ -298,6 +301,10 @@
             border-radius: 14px;
             padding: 10px 12px;
             margin-bottom: 8px;
+            transition: all 0.2s;
+        }
+        .comment-item:hover {
+            background: var(--comment-hover);
         }
         .comment-item-header {
             display: flex;
@@ -437,11 +444,8 @@
             justify-content: center;
             background: var(--bg-input);
             color: var(--text-secondary);
-        }
-        
-        .settings-btn:hover {
-            background: var(--border);
-            transform: none;
+            cursor: pointer;
+            border: none;
         }
         
         .settings-modal {
@@ -478,31 +482,42 @@
             margin: 16px 0;
         }
         
+        /* Все кнопки в настройках - единый стиль */
         .settings-item button {
             width: 100%;
             padding: 14px;
             font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            font-weight: 600;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--accent);
+            color: white;
+            border: none;
         }
         
-        .settings-theme-btn {
+        .settings-item button:active {
+            transform: scale(0.98);
+        }
+        
+        /* Кнопка "Сменить тему" - другой фон, но одинаковые размеры */
+        #settingsThemeBtn {
             background: var(--bg-input);
             color: var(--accent);
             border: 1px solid var(--accent);
         }
         
-        .settings-logout-btn {
+        /* Кнопка выхода */
+        #settingsLogoutBtn {
             background: var(--accent);
             color: white;
         }
         
-        .settings-close-btn {
+        /* Кнопка закрытия */
+        #settingsCloseBtn {
             background: var(--bg-input);
             color: var(--text-primary);
-            margin-top: 12px;
+            border: 1px solid var(--border);
         }
 
         .profile-buttons { 
@@ -1681,13 +1696,13 @@
         <div class="settings-modal-content">
             <h3>⚙️ Настройки</h3>
             <div class="settings-item">
-                <button class="settings-theme-btn" id="settingsThemeBtn">🌓 Сменить тему</button>
+                <button id="settingsThemeBtn">🌓 Сменить тему</button>
             </div>
             <div class="settings-item">
-                <button class="settings-logout-btn" id="settingsLogoutBtn">🚪 Выйти из аккаунта</button>
+                <button id="settingsLogoutBtn">🚪 Выйти из аккаунта</button>
             </div>
             <div class="settings-item">
-                <button class="settings-close-btn" id="settingsCloseBtn">✖️ Закрыть</button>
+                <button id="settingsCloseBtn">✖️ Закрыть</button>
             </div>
         </div>
     `;
