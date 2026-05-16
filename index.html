@@ -51,7 +51,6 @@
 
         body { background: var(--bg-primary); }
 
-        /* Галочка верификации */
         .verified-badge {
             display: inline-flex;
             align-items: center;
@@ -68,11 +67,8 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
 
-        .verified-badge::before {
-            content: "✓";
-        }
+        .verified-badge::before { content: "✓"; }
 
-        /* Золотая звёздочка для админа */
         .admin-badge {
             display: inline-flex;
             align-items: center;
@@ -89,11 +85,8 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
 
-        .admin-badge::before {
-            content: "★";
-        }
+        .admin-badge::before { content: "★"; }
 
-        /* Кнопка выдачи галочки */
         .verify-user-btn {
             background: linear-gradient(135deg, #1DA1F2, #0D8BD9);
             color: white;
@@ -322,7 +315,16 @@
         }
 
         .post-text { margin: 8px 0; color: var(--text-primary); line-height: 1.45; font-size: 15px; }
-        .post-photo { max-width: 100%; border-radius: 16px; margin: 8px 0; max-height: 300px; object-fit: cover; cursor: pointer; }
+        .post-photo { 
+            max-width: 100%; 
+            border-radius: 16px; 
+            margin: 8px 0; 
+            max-height: 300px; 
+            object-fit: cover; 
+            cursor: pointer; 
+            transition: transform 0.2s;
+        }
+        .post-photo:active { transform: scale(0.98); }
 
         .post-footer {
             display: flex;
@@ -715,6 +717,45 @@
             min-height: 100px;
         }
 
+        /* Модальное окно для просмотра фото */
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .image-modal img {
+            max-width: 95%;
+            max-height: 95%;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+        
+        .image-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 24px;
+            color: white;
+        }
+
         .admin-code-modal {
             display: none;
             position: fixed;
@@ -1058,6 +1099,12 @@
     </div>
 </div>
 
+<!-- Модальное окно для просмотра фото -->
+<div id="imageModal" class="image-modal" onclick="closeImageModal()">
+    <div class="image-modal-close" onclick="closeImageModal()">✕</div>
+    <img id="modalImage" src="" alt="Увеличенное фото">
+</div>
+
 <!-- Модальное окно редактирования профиля -->
 <div id="editProfileModal" class="edit-profile-modal">
     <div class="edit-profile-content">
@@ -1117,6 +1164,24 @@
 </div>
 
 <script>
+    // ========== ФУНКЦИЯ ДЛЯ ОТКРЫТИЯ ФОТО ==========
+    function openImageModal(imageUrl) {
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImage');
+        if (modal && modalImg && imageUrl) {
+            modalImg.src = imageUrl;
+            modal.style.display = 'flex';
+        }
+    }
+    
+    function closeImageModal() {
+        const modal = document.getElementById('imageModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.getElementById('modalImage').src = '';
+        }
+    }
+
     // ========== РАНДОМНАЯ ФРАЗА ==========
     const phrases = [
         "Делай каждый день",
@@ -1645,7 +1710,7 @@
                     ` : ''}
                 </div>
                 <div class="post-text">${escapeHtml(post.text)}</div>
-                ${post.photo ? `<img src="${post.photo}" class="post-photo" onclick="window.open(this.src)">` : ''}
+                ${post.photo ? `<img src="${post.photo}" class="post-photo" onclick="openImageModal('${post.photo}')">` : ''}
                 <div class="post-footer">
                     <div class="post-actions">
                         <button class="like-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}', ${JSON.stringify(post).replace(/"/g, '&quot;')})">❤️ ${post.likes?.length || 0}</button>
@@ -1935,6 +2000,7 @@
     window.toggleLike = toggleLike;
     window.toggleComments = toggleComments;
     window.toggleVerification = toggleVerification;
+    window.openImageModal = openImageModal;
 
     const settingsModal = document.createElement('div');
     settingsModal.id = 'settingsModal';
