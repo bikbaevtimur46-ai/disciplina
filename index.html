@@ -1409,15 +1409,24 @@
     }
 
     async function savePost(text, mediaDataUrl, mediaType) {
-        await db.collection('posts').add({
+        // Для обратной совместимости сохраняем и в photo, и в media
+        const postData = {
             userId: currentUser.uid,
             text: text,
-            media: mediaDataUrl || null,
-            mediaType: mediaType || null,
+            date: firebase.firestore.FieldValue.serverTimestamp(),
             likes: [],
-            comments: [],
-            date: firebase.firestore.FieldValue.serverTimestamp()
-        });
+            comments: []
+        };
+        
+        if (mediaDataUrl) {
+            postData.media = mediaDataUrl;
+            postData.mediaType = mediaType;
+            if (mediaType === 'image') {
+                postData.photo = mediaDataUrl; // для старых постов
+            }
+        }
+        
+        await db.collection('posts').add(postData);
         await loadData();
         await refreshAll();
     }
@@ -1494,7 +1503,6 @@
         currentEditComment = { postId: null, commentIndex: null };
     }
 
-    // ========== УДАЛЕНИЕ ПОСТА АДМИНИСТРАТОРОМ ==========
     async function deletePost(postId) {
         if (confirm('Удалить этот пост?')) {
             await db.collection('posts').doc(postId).delete();
@@ -1731,12 +1739,16 @@
         const showMenu = openMenus[post.id];
         const comments = post.comments || [];
         
+        // Поддержка старых постов (photo) и новых (media)
+        let mediaUrl = post.media || post.photo;
+        let mediaType = post.mediaType || (post.photo ? 'image' : null);
+        
         let mediaHtml = '';
-        if (post.media) {
-            if (post.mediaType === 'video') {
-                mediaHtml = `<video class="post-video" controls onclick="event.stopPropagation()"><source src="${post.media}" type="video/mp4">Ваш браузер не поддерживает видео</video>`;
+        if (mediaUrl) {
+            if (mediaType === 'video') {
+                mediaHtml = `<video class="post-video" controls onclick="event.stopPropagation()"><source src="${mediaUrl}" type="video/mp4">Ваш браузер не поддерживает видео</video>`;
             } else {
-                mediaHtml = `<img src="${post.media}" class="post-media" onclick="openImageModal('${post.media}')">`;
+                mediaHtml = `<img src="${mediaUrl}" class="post-media" onclick="openImageModal('${mediaUrl}')">`;
             }
         }
         
@@ -2011,12 +2023,6 @@
     
     window.deleteComment = deleteComment;
     window.openEditCommentModal = openEditCommentModal;
-    window.deletePost = deletePost;
-    window.deletePostAsAdmin = deletePostAsAdmin;
-    window.editPost = function(postId) {
-        const post = posts.find(p => p.id === postId);
-        openEditPostModal(postId, post.text);
-    };
     
     function toggleComments(postId) {
         openComments[postId] = !openComments[postId];
@@ -2064,6 +2070,12 @@
     window.toggleComments = toggleComments;
     window.toggleVerification = toggleVerification;
     window.openImageModal = openImageModal;
+    window.deletePost = deletePost;
+    window.deletePostAsAdmin = deletePostAsAdmin;
+    window.editPost = function(postId) {
+        const post = posts.find(p => p.id === postId);
+        openEditPostModal(postId, post.text);
+    };
 
     const settingsModal = document.createElement('div');
     settingsModal.id = 'settingsModal';
