@@ -493,6 +493,17 @@
             justify-content: center; 
             gap: 32px; 
             margin: 16px 0; 
+            cursor: pointer;
+        }
+        
+        .stat-item {
+            text-align: center;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        
+        .stat-item:hover {
+            opacity: 0.8;
         }
         
         .stat-value { 
@@ -588,6 +599,92 @@
             justify-content: center; 
             margin-top: 16px; 
             flex-wrap: wrap; 
+        }
+
+        /* Модальное окно списка пользователей */
+        .users-list-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2004;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+        }
+        
+        .users-list-content {
+            background: var(--bg-card);
+            border-radius: 28px;
+            padding: 24px;
+            width: 90%;
+            max-width: 350px;
+            border: 1px solid var(--border);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .users-list-content h3 {
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 22px;
+        }
+        
+        .users-list {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .user-list-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 16px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .user-list-item:hover {
+            background: var(--bg-input);
+        }
+        
+        .user-list-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: var(--border);
+        }
+        
+        .user-list-info {
+            flex: 1;
+        }
+        
+        .user-list-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .user-list-bio {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+        
+        .no-users {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 40px;
         }
 
         .edit-profile-modal {
@@ -1169,6 +1266,17 @@
     </div>
 </div>
 
+<!-- Модальное окно списка пользователей (подписчики/подписки) -->
+<div id="usersListModal" class="users-list-modal">
+    <div class="users-list-content">
+        <h3 id="usersListTitle">Подписчики</h3>
+        <div id="usersListContainer" class="users-list"></div>
+        <div class="edit-buttons" style="margin-top: 20px;">
+            <button id="closeUsersListBtn" class="cancel-edit-btn">Закрыть</button>
+        </div>
+    </div>
+</div>
+
 <script>
     // ========== ФУНКЦИЯ ДЛЯ ОТКРЫТИЯ ФОТО ==========
     function openImageModal(imageUrl) {
@@ -1188,13 +1296,75 @@
         }
     }
     
-    // ========== ОПРЕДЕЛЕНИЕ ТИПА МЕДИА ==========
-    function isVideoFile(file) {
-        return file && file.type && file.type.startsWith('video/');
+    // ========== ФУНКЦИИ ДЛЯ ПРОСМОТРА ПОДПИСЧИКОВ/ПОДПИСОК ==========
+    function showFollowers(userId) {
+        const user = users.find(u => u.id === userId);
+        if (!user) return;
+        
+        const followers = user.followers || [];
+        const followersUsers = users.filter(u => followers.includes(u.id));
+        
+        const title = document.getElementById('usersListTitle');
+        const container = document.getElementById('usersListContainer');
+        
+        title.textContent = `👥 Подписчики (${followersUsers.length})`;
+        
+        if (followersUsers.length === 0) {
+            container.innerHTML = '<div class="no-users">😔 Нет подписчиков</div>';
+        } else {
+            container.innerHTML = followersUsers.map(follower => `
+                <div class="user-list-item" onclick="viewProfile('${follower.id}'); closeUsersListModal();">
+                    <img class="user-list-avatar" src="${follower.avatar || 'https://via.placeholder.com/40'}" onerror="this.src='https://via.placeholder.com/40'">
+                    <div class="user-list-info">
+                        <div class="user-list-name">
+                            ${escapeHtml(follower.name)}
+                            ${follower.verified ? '<span class="verified-badge" style="width:14px;height:14px;font-size:9px;"></span>' : ''}
+                            ${follower.isAdmin ? '<span class="admin-badge" style="width:14px;height:14px;font-size:9px;"></span>' : ''}
+                        </div>
+                        <div class="user-list-bio">${escapeHtml(follower.bio || 'Нет описания')}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        document.getElementById('usersListModal').style.display = 'flex';
     }
     
-    function isImageFile(file) {
-        return file && file.type && file.type.startsWith('image/');
+    function showFollowing(userId) {
+        const user = users.find(u => u.id === userId);
+        if (!user) return;
+        
+        const following = user.following || [];
+        const followingUsers = users.filter(u => following.includes(u.id));
+        
+        const title = document.getElementById('usersListTitle');
+        const container = document.getElementById('usersListContainer');
+        
+        title.textContent = `📌 Подписки (${followingUsers.length})`;
+        
+        if (followingUsers.length === 0) {
+            container.innerHTML = '<div class="no-users">😔 Нет подписок</div>';
+        } else {
+            container.innerHTML = followingUsers.map(follow => `
+                <div class="user-list-item" onclick="viewProfile('${follow.id}'); closeUsersListModal();">
+                    <img class="user-list-avatar" src="${follow.avatar || 'https://via.placeholder.com/40'}" onerror="this.src='https://via.placeholder.com/40'">
+                    <div class="user-list-info">
+                        <div class="user-list-name">
+                            ${escapeHtml(follow.name)}
+                            ${follow.verified ? '<span class="verified-badge" style="width:14px;height:14px;font-size:9px;"></span>' : ''}
+                            ${follow.isAdmin ? '<span class="admin-badge" style="width:14px;height:14px;font-size:9px;"></span>' : ''}
+                        </div>
+                        <div class="user-list-bio">${escapeHtml(follow.bio || 'Нет описания')}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        document.getElementById('usersListModal').style.display = 'flex';
+    }
+    
+    function closeUsersListModal() {
+        document.getElementById('usersListModal').style.display = 'none';
     }
 
     // ========== РАНДОМНАЯ ФРАЗА ==========
@@ -1409,7 +1579,6 @@
     }
 
     async function savePost(text, mediaDataUrl, mediaType) {
-        // Для обратной совместимости сохраняем и в photo, и в media
         const postData = {
             userId: currentUser.uid,
             text: text,
@@ -1422,7 +1591,7 @@
             postData.media = mediaDataUrl;
             postData.mediaType = mediaType;
             if (mediaType === 'image') {
-                postData.photo = mediaDataUrl; // для старых постов
+                postData.photo = mediaDataUrl;
             }
         }
         
@@ -1739,7 +1908,6 @@
         const showMenu = openMenus[post.id];
         const comments = post.comments || [];
         
-        // Поддержка старых постов (photo) и новых (media)
         let mediaUrl = post.media || post.photo;
         let mediaType = post.mediaType || (post.photo ? 'image' : null);
         
@@ -1877,13 +2045,28 @@
                 </div>
                 <p style="color:var(--text-secondary); margin-top: 6px;">${escapeHtml(profileUser.bio || 'Нет описания')}</p>
                 <div class="stats">
-                    <div><div class="stat-value">${userPosts.length}</div><div class="stat-label">посты</div></div>
-                    <div><div class="stat-value">${profileUser.followers?.length || 0}</div><div class="stat-label">подписчики</div></div>
-                    <div><div class="stat-value">${profileUser.following?.length || 0}</div><div class="stat-label">подписки</div></div>
+                    <div class="stat-item" onclick="showFollowers('${viewingUserId}')">
+                        <div class="stat-value">${profileUser.followers?.length || 0}</div>
+                        <div class="stat-label">подписчики</div>
+                    </div>
+                    <div class="stat-item" onclick="showFollowing('${viewingUserId}')">
+                        <div class="stat-value">${profileUser.following?.length || 0}</div>
+                        <div class="stat-label">подписки</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">${userPosts.length}</div>
+                        <div class="stat-label">посты</div>
+                    </div>
                 </div>
-                <div class="stats">
-                    <div><div class="stat-value" style="color:var(--success);">${userStats.totalPoints}</div><div class="stat-label">очков</div></div>
-                    <div><div class="stat-value" style="color:#ff9800;">${userStats.bestRoll >= 0 ? '+' : ''}${userStats.bestRoll}</div><div class="stat-label">лучший бросок</div></div>
+                <div class="stats" style="margin-top: 5px;">
+                    <div class="stat-item">
+                        <div class="stat-value" style="color:var(--success);">${userStats.totalPoints}</div>
+                        <div class="stat-label">очков</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" style="color:#ff9800;">${userStats.bestRoll >= 0 ? '+' : ''}${userStats.bestRoll}</div>
+                        <div class="stat-label">лучший бросок</div>
+                    </div>
                 </div>
                 <div class="profile-buttons">
                     ${!isOwn ? `
@@ -2076,6 +2259,10 @@
         const post = posts.find(p => p.id === postId);
         openEditPostModal(postId, post.text);
     };
+    
+    window.showFollowers = showFollowers;
+    window.showFollowing = showFollowing;
+    window.closeUsersListModal = closeUsersListModal;
 
     const settingsModal = document.createElement('div');
     settingsModal.id = 'settingsModal';
@@ -2109,6 +2296,13 @@
     
     window.openSettings = openSettings;
     window.closeSettings = closeSettings;
+
+    document.getElementById('closeUsersListBtn')?.addEventListener('click', closeUsersListModal);
+    document.getElementById('usersListModal')?.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('usersListModal')) {
+            closeUsersListModal();
+        }
+    });
 
     const forgotBtn = document.getElementById('forgotPasswordBtn');
     const resetModal = document.getElementById('resetPasswordModal');
